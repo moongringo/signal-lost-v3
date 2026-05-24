@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SIGNAL LOST — Role Selection</title>
+<style>
+/* ─── Theme Variables (Green = Default) ─── */
+:root {
+  --accent: #00ff00;
+  --accent-rgb: 0, 255, 0;
+  --accent-dim: #2aff2a;
+  --accent-dim-rgb: 42, 255, 42;
+  --accent-glow: #3aff3a;
+  --accent-glow-rgb: 58, 255, 58;
+  --accent-bright: #6fff6a;
+  --accent-text: #b8ffb0;
+  --accent-muted: #5a8a5a;
+  --accent-dim-muted: #3a6a3a;
+  --accent-border: #1a3a1a;
+  --accent-border-light: #142814;
+  --accent-border-dim: #1f3a1f;
+  --accent-border-input: #1a2a1a;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b0d;
+  --bg-header: #0f220f;
+  --bg-header-to: #0a1a0a;
+  --bg-tab: #0a180a;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091409;
+  --bg-input: #0a180a;
+  --bg-input-field: #0a140a;
+  --bg-button: #0f2a0f;
+  --bg-button-hover: #1a3a1a;
+  --bg-button-active: #1f4a1f;
+  --bg-msg-player: rgba(30, 60, 30, 0.4);
+  --bg-msg-system: rgba(20, 40, 20, 0.2);
+  --bg-quick-btn: #0f1f0f;
+  --bg-quick-btn-hover: #1a3a1a;
+  --bg-quick-btn-active: #1f4a1f;
+  --text: #b8ffb0;
+  --text-dim: #6fff6a;
+  --text-muted: #3a6a3a;
+  --text-input: #b8ffb0;
+  --text-placeholder: #1f3a1f;
+  --text-enc-label: #2a5a2a;
+  --text-divider: #1a3a1a;
+  --text-divider-dash: #0f1f0f;
+  --text-system: #5a8a5a;
+  --text-system-strong: #7aff7a;
+  --text-transmission: #6a9a6a;
+  --text-quick-btn: #7aff7a;
+  --text-enc-border: #1a3a1a;
+  --scrollbar-thumb: #1a3a1a;
+  --signal-bar-1: #2aff2a;
+  --signal-bar-4: #4aff4a;
+  --signal-bar-5: #6aff6a;
+  --status-dot: #2aff2a;
+  --status-dot-glow: #2aff2a;
+  --tab-active: #8fff8a;
+  --tab-active-underline: #3aff3a;
+  --tab-active-glow: rgba(100, 255, 100, 0.2);
+  --tab-active-underline-shadow: rgba(58, 255, 58, 0.4);
+  --btn-border-hover: #3a6a3a;
+  --btn-shadow-hover: rgba(58, 255, 58, 0.15);
+  --btn-shadow: rgba(0, 255, 0, 0.08);
+  --input-focus-border: #2aff2a;
+  --input-focus-shadow: rgba(42, 255, 42, 0.05);
+  --send-btn-border: #2a5a2a;
+  --send-btn-text: #6fff6a;
+  --send-btn-border-hover: #3aff3a;
+  --send-btn-shadow-hover: rgba(58, 255, 58, 0.15);
+  --header-shadow: rgba(100, 255, 100, 0.3);
+  --scanline-color: rgba(0, 255, 0, 0.015);
+  --freq-color: #00ff00;
+  --crackle-1: #0a1a0a;
+  --crackle-2: #1a3a1a;
+  --crackle-3: #0f2a0f;
+  --msg-border-player: #2aff2a;
+  --msg-callsign: #6fff6a;
+  --msg-timestamp: #2a5a2a;
+}
+
+/* ─── Cyan Theme ─── */
+.theme-cyan {
+  --accent: #00ffff;
+  --accent-rgb: 0, 255, 255;
+  --accent-dim: #00e5e5;
+  --accent-dim-rgb: 0, 229, 229;
+  --accent-glow: #33ffff;
+  --accent-glow-rgb: 51, 255, 255;
+  --accent-bright: #66ffff;
+  --accent-text: #b0ffff;
+  --accent-muted: #5a9a9a;
+  --accent-dim-muted: #3a6a6a;
+  --accent-border: #1a3a3a;
+  --accent-border-light: #143838;
+  --accent-border-dim: #1f3a3a;
+  --accent-border-input: #1a3a3a;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b1b;
+  --bg-header: #0f2222;
+  --bg-header-to: #0a1a1a;
+  --bg-tab: #0a1818;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091414;
+  --bg-input: #0a1818;
+  --bg-input-field: #0a1414;
+  --bg-button: #0f2a2a;
+  --bg-button-hover: #1a3a3a;
+  --bg-button-active: #1f4a4a;
+  --bg-msg-player: rgba(30, 60, 60, 0.4);
+  --bg-msg-system: rgba(20, 40, 40, 0.2);
+  --bg-quick-btn: #0f1f1f;
+  --bg-quick-btn-hover: #1a3a3a;
+  --bg-quick-btn-active: #1f4a4a;
+  --text: #b0ffff;
+  --text-dim: #66ffff;
+  --text-muted: #3a6a6a;
+  --text-input: #b0ffff;
+  --text-placeholder: #1f3a3a;
+  --text-enc-label: #2a5a5a;
+  --text-divider: #1a3a3a;
+  --text-divider-dash: #0f1f1f;
+  --text-system: #5a9a9a;
+  --text-system-strong: #7affff;
+  --text-transmission: #6a9a9a;
+  --text-quick-btn: #7affff;
+  --text-enc-border: #1a3a3a;
+  --scrollbar-thumb: #1a3a3a;
+  --signal-bar-1: #00e5e5;
+  --signal-bar-4: #33ffff;
+  --signal-bar-5: #66ffff;
+  --status-dot: #00e5e5;
+  --status-dot-glow: #00e5e5;
+  --tab-active: #8affff;
+  --tab-active-underline: #33ffff;
+  --tab-active-glow: rgba(0, 255, 255, 0.2);
+  --tab-active-underline-shadow: rgba(51, 255, 255, 0.4);
+  --btn-border-hover: #3a6a6a;
+  --btn-shadow-hover: rgba(0, 255, 255, 0.15);
+  --btn-shadow: rgba(0, 255, 255, 0.08);
+  --input-focus-border: #00e5e5;
+  --input-focus-shadow: rgba(0, 229, 229, 0.05);
+  --send-btn-border: #2a5a5a;
+  --send-btn-text: #66ffff;
+  --send-btn-border-hover: #33ffff;
+  --send-btn-shadow-hover: rgba(51, 255, 255, 0.15);
+  --header-shadow: rgba(0, 255, 255, 0.3);
+  --scanline-color: rgba(0, 255, 255, 0.015);
+  --freq-color: #00ffff;
+  --crackle-1: #0a1a1a;
+  --crackle-2: #1a3a3a;
+  --crackle-3: #0f2a2a;
+  --msg-border-player: #00e5e5;
+  --msg-callsign: #66ffff;
+  --msg-timestamp: #2a5a5a;
+}
+
+/* ─── Light Blue Theme ─── */
+.theme-lightblue {
+  --accent: #64b5f6;
+  --accent-rgb: 100, 181, 246;
+  --accent-dim: #42a5f5;
+  --accent-dim-rgb: 66, 165, 245;
+  --accent-glow: #90caf9;
+  --accent-glow-rgb: 144, 202, 249;
+  --accent-bright: #bbdefb;
+  --accent-text: #e3f2fd;
+  --accent-muted: #90a4ae;
+  --accent-dim-muted: #607d8b;
+  --accent-border: #37474f;
+  --accent-border-light: #263238;
+  --accent-border-dim: #455a64;
+  --accent-border-input: #37474f;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b1d;
+  --bg-header: #0f2225;
+  --bg-header-to: #0a1a1c;
+  --bg-tab: #0a181a;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091416;
+  --bg-input: #0a181a;
+  --bg-input-field: #0a1416;
+  --bg-button: #0f2a2e;
+  --bg-button-hover: #1a3a3e;
+  --bg-button-active: #1f4a4e;
+  --bg-msg-player: rgba(30, 60, 70, 0.4);
+  --bg-msg-system: rgba(20, 40, 50, 0.2);
+  --bg-quick-btn: #0f1f22;
+  --bg-quick-btn-hover: #1a3a3e;
+  --bg-quick-btn-active: #1f4a4e;
+  --text: #e3f2fd;
+  --text-dim: #bbdefb;
+  --text-muted: #607d8b;
+  --text-input: #e3f2fd;
+  --text-placeholder: #455a64;
+  --text-enc-label: #546e7a;
+  --text-divider: #37474f;
+  --text-divider-dash: #263238;
+  --text-system: #90a4ae;
+  --text-system-strong: #bbdefb;
+  --text-transmission: #78909c;
+  --text-quick-btn: #bbdefb;
+  --text-enc-border: #37474f;
+  --scrollbar-thumb: #37474f;
+  --signal-bar-1: #42a5f5;
+  --signal-bar-4: #64b5f6;
+  --signal-bar-5: #90caf9;
+  --status-dot: #42a5f5;
+  --status-dot-glow: #42a5f5;
+  --tab-active: #e3f2fd;
+  --tab-active-underline: #64b5f6;
+  --tab-active-glow: rgba(100, 181, 246, 0.2);
+  --tab-active-underline-shadow: rgba(100, 181, 246, 0.4);
+  --btn-border-hover: #607d8b;
+  --btn-shadow-hover: rgba(100, 181, 246, 0.15);
+  --btn-shadow: rgba(100, 181, 246, 0.08);
+  --input-focus-border: #42a5f5;
+  --input-focus-shadow: rgba(66, 165, 245, 0.05);
+  --send-btn-border: #546e7a;
+  --send-btn-text: #bbdefb;
+  --send-btn-border-hover: #64b5f6;
+  --send-btn-shadow-hover: rgba(100, 181, 246, 0.15);
+  --header-shadow: rgba(100, 181, 246, 0.3);
+  --scanline-color: rgba(100, 181, 246, 0.015);
+  --freq-color: #64b5f6;
+  --crackle-1: #0a1a1c;
+  --crackle-2: #1a3a3e;
+  --crackle-3: #0f2a2e;
+  --msg-border-player: #42a5f5;
+  --msg-callsign: #bbdefb;
+  --msg-timestamp: #546e7a;
+}
+
+/* ─── Reset & Base ─── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  height: 100%;
+  background: var(--bg);
+  font-family: 'Courier New', 'Courier', monospace;
+  color: var(--text);
+  overflow: hidden;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ─── Phone Frame ─── */
+.phone {
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  max-height: 812px;
+  background: var(--bg-dark);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 60px var(--btn-shadow);
+}
+
+/* ─── Scan Lines ─── */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    var(--scanline-color) 2px,
+    var(--scanline-color) 4px
+  );
+}
+
+/* ─── Vignette ─── */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+}
+
+/* ─── Frequency Wave Decor ─── */
+.freq-wave {
+  position: absolute;
+  bottom: 140px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.04;
+  overflow: hidden;
+}
+.freq-wave::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--freq-color) 0px,
+    transparent 2px,
+    transparent 8px,
+    var(--freq-color) 10px,
+    transparent 12px
+  );
+  animation: freqSweep 6s linear infinite;
+}
+@keyframes freqSweep {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── Signal Strength Bars ─── */
+.signal-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  margin-left: 6px;
+}
+.signal-bars .bar {
+  width: 4px;
+  background: var(--signal-bar-1);
+  border-radius: 1px 1px 0 0;
+  animation: signalPulse 1.2s ease-in-out infinite alternate;
+}
+.signal-bars .bar:nth-child(1) { height: 6px;  animation-delay: 0.0s; }
+.signal-bars .bar:nth-child(2) { height: 9px;  animation-delay: 0.15s; }
+.signal-bars .bar:nth-child(3) { height: 13px; animation-delay: 0.3s; }
+.signal-bars .bar:nth-child(4) { height: 16px; animation-delay: 0.45s; background: var(--signal-bar-4); }
+.signal-bars .bar:nth-child(5) { height: 20px; animation-delay: 0.6s; background: var(--signal-bar-5); }
+@keyframes signalPulse {
+  0%   { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+/* ─── HEADER ─── */
+.header {
+  position: relative;
+  z-index: 5;
+  background: linear-gradient(180deg, var(--bg-header), var(--bg-header-to));
+  border-bottom: 1px solid var(--accent-border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.header-icon {
+  font-size: 18px;
+  margin-right: 8px;
+}
+.header-title {
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-shadow: 0 0 8px var(--header-shadow);
+  flex: 1;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.header-enc {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  border: 1px solid var(--accent-border-dim);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-dot);
+  box-shadow: 0 0 6px var(--status-dot-glow);
+  animation: blink 2s step-end infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.2; }
+}
+
+/* ─── Theme Switcher Dots ─── */
+.theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px;
+  padding: 3px 6px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 20px;
+  position: relative;
+  z-index: 20;
+}
+.theme-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.25);
+  cursor: pointer;
+  transition: 0.2s;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+.theme-dot:hover {
+  opacity: 1;
+  transform: scale(1.2);
+  border-color: rgba(255,255,255,0.5);
+}
+.theme-dot.active {
+  opacity: 1;
+  border-color: #fff;
+  box-shadow: 0 0 8px currentColor;
+}
+.theme-dot-green {
+  background: #00ff00;
+  color: #00ff00;
+}
+.theme-dot-cyan {
+  background: #00ffff;
+  color: #00ffff;
+}
+.theme-dot-blue {
+  background: #64b5f6;
+  color: #64b5f6;
+}
+
+/* ─── Sub Header ─── */
+.sub-header {
+  background: var(--bg-tab);
+  border-bottom: 1px solid var(--accent-border-light);
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  z-index: 5;
+  position: relative;
+}
+.sub-header .mission-info {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.sub-header .mission-info span {
+  color: var(--text-dim);
+}
+.sub-header .squad-code {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-system);
+  border: 1px solid var(--accent-border-dim);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+/* ─── Content Scroll Area ─── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 5;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+
+/* ─── Section Label ─── */
+.section-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+/* ─── Role Cards Grid ─── */
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.role-card {
+  background: var(--bg-button);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 14px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.role-card:hover {
+  background: var(--bg-button-hover);
+  border-color: var(--btn-border-hover);
+}
+.role-card:active {
+  transform: scale(0.97);
+}
+.role-card.selected {
+  border-color: var(--accent);
+  background: var(--bg-button-active);
+  box-shadow: 0 0 10px var(--btn-shadow), inset 0 0 10px var(--btn-shadow);
+}
+.role-card.taken {
+  opacity: 0.4;
+  pointer-events: none;
+  border-color: var(--accent-border-dim);
+}
+.role-card .role-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+.role-card .role-name {
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  color: var(--text);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.role-card.selected .role-name {
+  color: var(--accent-bright);
+}
+.role-card .role-desc {
+  font-size: 9px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.role-card .role-taken-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 8px;
+  color: var(--text-system);
+  background: var(--bg-dark);
+  border: 1px solid var(--accent-border);
+  padding: 1px 4px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+}
+
+/* ─── Squad Roles Summary ─── */
+.squad-summary {
+  background: var(--bg-button);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.squad-summary .summary-title {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.squad-summary .summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.summary-pill {
+  font-size: 9px;
+  padding: 3px 8px;
+  background: var(--bg-input-field);
+  border: 1px solid var(--accent-border);
+  border-radius: 10px;
+  color: var(--text-system);
+  letter-spacing: 0.5px;
+}
+.summary-pill.filled {
+  border-color: var(--accent-dim);
+  color: var(--accent-text);
+}
+
+/* ─── Confirm Bar ─── */
+.confirm-bar {
+  flex-shrink: 0;
+  padding: 12px 14px 16px;
+  border-top: 1px solid var(--accent-border);
+  position: relative;
+  z-index: 5;
+  background: var(--bg-dark);
+}
+.confirm-btn {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--bg-button);
+  color: var(--accent-bright);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  min-height: 52px;
+  transition: all 0.15s;
+  box-shadow: 0 0 10px var(--btn-shadow), inset 0 0 8px var(--btn-shadow);
+}
+.confirm-btn:hover {
+  background: var(--bg-button-hover);
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 16px var(--btn-shadow-hover), inset 0 0 12px var(--btn-shadow-hover);
+}
+.confirm-btn:active {
+  background: var(--bg-button-active);
+  transform: scale(0.98);
+}
+.confirm-btn:disabled {
+  opacity: 0.4;
+  border-color: var(--accent-border);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ─── Divider ─── */
+.divider {
+  text-align: center;
+  font-size: 9px;
+  color: var(--text-divider);
+  padding: 2px 0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.divider::before, .divider::after {
+  content: '── ';
+  color: var(--text-divider-dash);
+}
+.divider::after { content: ' ──'; }
+
+/* ─── Responsive ─── */
+@media (max-height: 640px) {
+  .phone { max-height: 100vh; }
+  .header { padding: 8px 12px; }
+  .content { padding: 10px; gap: 8px; }
+  .role-card { padding: 10px 8px; }
+  .role-card .role-icon { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Effects layers -->
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+  <div class="freq-wave"></div>
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header">
+    <span class="header-icon">📡</span>
+    <span class="header-title">ROLE SELECTION</span>
+    <div class="header-right">
+      <div class="theme-switcher">
+        <div class="theme-dot theme-dot-green active" data-theme="theme-green" title="Green (Default)"></div>
+        <div class="theme-dot theme-dot-cyan" data-theme="theme-cyan" title="Cyan"></div>
+        <div class="theme-dot theme-dot-blue" data-theme="theme-lightblue" title="Light Blue"></div>
+      </div>
+      <div class="signal-bars">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+      <div class="status-dot"></div>
+      <span class="header-enc">AES-256</span>
+    </div>
+  </div>
+
+  <!-- ═══ SUB HEADER ═══ -->
+  <div class="sub-header">
+    <div class="mission-info">Map: <span>New York City</span> · Mode: <span>Co-op</span></div>
+    <div class="squad-code">AB7X-K9M2</div>
+  </div>
+
+  <!-- ═══ CONTENT ═══ -->
+  <div class="content">
+
+    <div class="section-label">Choose Your Role</div>
+
+    <div class="role-grid" id="roleGrid">
+      <div class="role-card" data-role="scout">
+        <div class="role-icon">📡</div>
+        <div class="role-name">Scout</div>
+        <div class="role-desc">Sees blips on mini-map. Fast recon.</div>
+      </div>
+      <div class="role-card taken" data-role="medic">
+        <div class="role-icon">➕</div>
+        <div class="role-name">Medic</div>
+        <div class="role-desc">Can revive downed squadmates.</div>
+        <div class="role-taken-badge">GHOST-2</div>
+      </div>
+      <div class="role-card" data-role="engineer">
+        <div class="role-icon">🔧</div>
+        <div class="role-name">Engineer</div>
+        <div class="role-desc">Repair equipment, set traps.</div>
+      </div>
+      <div class="role-card" data-role="soldier">
+        <div class="role-icon">🎯</div>
+        <div class="role-name">Soldier</div>
+        <div class="role-desc">Bonus damage, heavy weapons.</div>
+      </div>
+      <div class="role-card" data-role="hacker">
+        <div class="role-icon">💻</div>
+        <div class="role-name">Hacker</div>
+        <div class="role-desc">Disable enemy tech, open doors.</div>
+      </div>
+      <div class="role-card" data-role="commander">
+        <div class="role-icon">⭐</div>
+        <div class="role-name">Commander</div>
+        <div class="role-desc">Call airstrikes, supply drops.</div>
+      </div>
+    </div>
+
+    <div class="divider">Squad Composition</div>
+
+    <div class="squad-summary">
+      <div class="summary-title">Assigned Roles</div>
+      <div class="summary-row" id="summaryRow">
+        <span class="summary-pill filled">Medic — GHOST-2</span>
+        <span class="summary-pill">Engineer</span>
+        <span class="summary-pill">Scout</span>
+        <span class="summary-pill">Soldier</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ CONFIRM BAR ═══ -->
+  <div class="confirm-bar">
+    <button class="confirm-btn" id="btnConfirm" disabled>Select a Role</button>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  const THEME_KEY = 'signal-lost-theme';
+
+  function setTheme(themeName) {
+    const phone = document.querySelector('.phone');
+    phone.classList.remove('theme-cyan', 'theme-lightblue');
+    if (themeName && themeName !== 'theme-green') {
+      phone.classList.add(themeName);
+    }
+    document.querySelectorAll('.theme-dot').forEach(dot => {
+      dot.classList.toggle('active', dot.dataset.theme === themeName);
+    });
+    localStorage.setItem(THEME_KEY, themeName);
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) setTheme(saved);
+  });
+
+  document.addEventListener('click', function(e) {
+    const dot = e.target.closest('.theme-dot');
+    if (dot) setTheme(dot.dataset.theme);
+  });
+
+  // Role selection
+  let selectedRole = null;
+  const cards = document.querySelectorAll('.role-card:not(.taken)');
+  const confirmBtn = document.getElementById('btnConfirm');
+
+  cards.forEach(card => {
+    card.addEventListener('click', function() {
+      cards.forEach(c => c.classList.remove('selected'));
+      this.classList.add('selected');
+      selectedRole = this.dataset.role;
+      const name = this.querySelector('.role-name').textContent;
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Confirm ' + name;
+    });
+  });
+
+  confirmBtn.addEventListener('click', function() {
+    if (selectedRole) {
+      this.textContent = 'Role Confirmed ✓';
+      this.style.borderColor = 'var(--accent)';
+    }
+  });
+})();
+</script>
+</body>
+</html>

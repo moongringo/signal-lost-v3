@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SIGNAL LOST — Tutorial</title>
+<style>
+/* ─── Theme Variables (Green = Default) ─── */
+:root {
+  --accent: #00ff00;
+  --accent-rgb: 0, 255, 0;
+  --accent-dim: #2aff2a;
+  --accent-dim-rgb: 42, 255, 42;
+  --accent-glow: #3aff3a;
+  --accent-glow-rgb: 58, 255, 58;
+  --accent-bright: #6fff6a;
+  --accent-text: #b8ffb0;
+  --accent-muted: #5a8a5a;
+  --accent-dim-muted: #3a6a3a;
+  --accent-border: #1a3a1a;
+  --accent-border-light: #142814;
+  --accent-border-dim: #1f3a1f;
+  --accent-border-input: #1a2a1a;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b0d;
+  --bg-header: #0f220f;
+  --bg-header-to: #0a1a0a;
+  --bg-tab: #0a180a;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091409;
+  --bg-input: #0a180a;
+  --bg-input-field: #0a140a;
+  --bg-button: #0f2a0f;
+  --bg-button-hover: #1a3a1a;
+  --bg-button-active: #1f4a1f;
+  --bg-msg-player: rgba(30, 60, 30, 0.4);
+  --bg-msg-system: rgba(20, 40, 20, 0.2);
+  --bg-quick-btn: #0f1f0f;
+  --bg-quick-btn-hover: #1a3a1a;
+  --bg-quick-btn-active: #1f4a1f;
+  --text: #b8ffb0;
+  --text-dim: #6fff6a;
+  --text-muted: #3a6a3a;
+  --text-input: #b8ffb0;
+  --text-placeholder: #1f3a1f;
+  --text-enc-label: #2a5a2a;
+  --text-divider: #1a3a1a;
+  --text-divider-dash: #0f1f0f;
+  --text-system: #5a8a5a;
+  --text-system-strong: #7aff7a;
+  --text-transmission: #6a9a6a;
+  --text-quick-btn: #7aff7a;
+  --text-enc-border: #1a3a1a;
+  --scrollbar-thumb: #1a3a1a;
+  --signal-bar-1: #2aff2a;
+  --signal-bar-4: #4aff4a;
+  --signal-bar-5: #6aff6a;
+  --status-dot: #2aff2a;
+  --status-dot-glow: #2aff2a;
+  --tab-active: #8fff8a;
+  --tab-active-underline: #3aff3a;
+  --tab-active-glow: rgba(100, 255, 100, 0.2);
+  --tab-active-underline-shadow: rgba(58, 255, 58, 0.4);
+  --btn-border-hover: #3a6a3a;
+  --btn-shadow-hover: rgba(58, 255, 58, 0.15);
+  --btn-shadow: rgba(0, 255, 0, 0.08);
+  --input-focus-border: #2aff2a;
+  --input-focus-shadow: rgba(42, 255, 42, 0.05);
+  --send-btn-border: #2a5a2a;
+  --send-btn-text: #6fff6a;
+  --send-btn-border-hover: #3aff3a;
+  --send-btn-shadow-hover: rgba(58, 255, 58, 0.15);
+  --header-shadow: rgba(100, 255, 100, 0.3);
+  --scanline-color: rgba(0, 255, 0, 0.015);
+  --freq-color: #00ff00;
+  --crackle-1: #0a1a0a;
+  --crackle-2: #1a3a1a;
+  --crackle-3: #0f2a0f;
+  --msg-border-player: #2aff2a;
+  --msg-callsign: #6fff6a;
+  --msg-timestamp: #2a5a2a;
+}
+
+/* ─── Cyan Theme ─── */
+.theme-cyan {
+  --accent: #00ffff;
+  --accent-rgb: 0, 255, 255;
+  --accent-dim: #00e5e5;
+  --accent-dim-rgb: 0, 229, 229;
+  --accent-glow: #33ffff;
+  --accent-glow-rgb: 51, 255, 255;
+  --accent-bright: #66ffff;
+  --accent-text: #b0ffff;
+  --accent-muted: #5a9a9a;
+  --accent-dim-muted: #3a6a6a;
+  --accent-border: #1a3a3a;
+  --accent-border-light: #143838;
+  --accent-border-dim: #1f3a3a;
+  --accent-border-input: #1a3a3a;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b1b;
+  --bg-header: #0f2222;
+  --bg-header-to: #0a1a1a;
+  --bg-tab: #0a1818;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091414;
+  --bg-input: #0a1818;
+  --bg-input-field: #0a1414;
+  --bg-button: #0f2a2a;
+  --bg-button-hover: #1a3a3a;
+  --bg-button-active: #1f4a4a;
+  --bg-msg-player: rgba(30, 60, 60, 0.4);
+  --bg-msg-system: rgba(20, 40, 40, 0.2);
+  --bg-quick-btn: #0f1f1f;
+  --bg-quick-btn-hover: #1a3a3a;
+  --bg-quick-btn-active: #1f4a4a;
+  --text: #b0ffff;
+  --text-dim: #66ffff;
+  --text-muted: #3a6a6a;
+  --text-input: #b0ffff;
+  --text-placeholder: #1f3a3a;
+  --text-enc-label: #2a5a5a;
+  --text-divider: #1a3a3a;
+  --text-divider-dash: #0f1f1f;
+  --text-system: #5a9a9a;
+  --text-system-strong: #7affff;
+  --text-transmission: #6a9a9a;
+  --text-quick-btn: #7affff;
+  --text-enc-border: #1a3a3a;
+  --scrollbar-thumb: #1a3a3a;
+  --signal-bar-1: #00e5e5;
+  --signal-bar-4: #33ffff;
+  --signal-bar-5: #66ffff;
+  --status-dot: #00e5e5;
+  --status-dot-glow: #00e5e5;
+  --tab-active: #8affff;
+  --tab-active-underline: #33ffff;
+  --tab-active-glow: rgba(0, 255, 255, 0.2);
+  --tab-active-underline-shadow: rgba(51, 255, 255, 0.4);
+  --btn-border-hover: #3a6a6a;
+  --btn-shadow-hover: rgba(0, 255, 255, 0.15);
+  --btn-shadow: rgba(0, 255, 255, 0.08);
+  --input-focus-border: #00e5e5;
+  --input-focus-shadow: rgba(0, 229, 229, 0.05);
+  --send-btn-border: #2a5a5a;
+  --send-btn-text: #66ffff;
+  --send-btn-border-hover: #33ffff;
+  --send-btn-shadow-hover: rgba(51, 255, 255, 0.15);
+  --header-shadow: rgba(0, 255, 255, 0.3);
+  --scanline-color: rgba(0, 255, 255, 0.015);
+  --freq-color: #00ffff;
+  --crackle-1: #0a1a1a;
+  --crackle-2: #1a3a3a;
+  --crackle-3: #0f2a2a;
+  --msg-border-player: #00e5e5;
+  --msg-callsign: #66ffff;
+  --msg-timestamp: #2a5a5a;
+}
+
+/* ─── Light Blue Theme ─── */
+.theme-lightblue {
+  --accent: #64b5f6;
+  --accent-rgb: 100, 181, 246;
+  --accent-dim: #42a5f5;
+  --accent-dim-rgb: 66, 165, 245;
+  --accent-glow: #90caf9;
+  --accent-glow-rgb: 144, 202, 249;
+  --accent-bright: #bbdefb;
+  --accent-text: #e3f2fd;
+  --accent-muted: #90a4ae;
+  --accent-dim-muted: #607d8b;
+  --accent-border: #37474f;
+  --accent-border-light: #263238;
+  --accent-border-dim: #455a64;
+  --accent-border-input: #37474f;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b1d;
+  --bg-header: #0f2225;
+  --bg-header-to: #0a1a1c;
+  --bg-tab: #0a181a;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091416;
+  --bg-input: #0a181a;
+  --bg-input-field: #0a1416;
+  --bg-button: #0f2a2e;
+  --bg-button-hover: #1a3a3e;
+  --bg-button-active: #1f4a4e;
+  --bg-msg-player: rgba(30, 60, 70, 0.4);
+  --bg-msg-system: rgba(20, 40, 50, 0.2);
+  --bg-quick-btn: #0f1f22;
+  --bg-quick-btn-hover: #1a3a3e;
+  --bg-quick-btn-active: #1f4a4e;
+  --text: #e3f2fd;
+  --text-dim: #bbdefb;
+  --text-muted: #607d8b;
+  --text-input: #e3f2fd;
+  --text-placeholder: #455a64;
+  --text-enc-label: #546e7a;
+  --text-divider: #37474f;
+  --text-divider-dash: #263238;
+  --text-system: #90a4ae;
+  --text-system-strong: #bbdefb;
+  --text-transmission: #78909c;
+  --text-quick-btn: #bbdefb;
+  --text-enc-border: #37474f;
+  --scrollbar-thumb: #37474f;
+  --signal-bar-1: #42a5f5;
+  --signal-bar-4: #64b5f6;
+  --signal-bar-5: #90caf9;
+  --status-dot: #42a5f5;
+  --status-dot-glow: #42a5f5;
+  --tab-active: #e3f2fd;
+  --tab-active-underline: #64b5f6;
+  --tab-active-glow: rgba(100, 181, 246, 0.2);
+  --tab-active-underline-shadow: rgba(100, 181, 246, 0.4);
+  --btn-border-hover: #607d8b;
+  --btn-shadow-hover: rgba(100, 181, 246, 0.15);
+  --btn-shadow: rgba(100, 181, 246, 0.08);
+  --input-focus-border: #42a5f5;
+  --input-focus-shadow: rgba(66, 165, 245, 0.05);
+  --send-btn-border: #546e7a;
+  --send-btn-text: #bbdefb;
+  --send-btn-border-hover: #64b5f6;
+  --send-btn-shadow-hover: rgba(100, 181, 246, 0.15);
+  --header-shadow: rgba(100, 181, 246, 0.3);
+  --scanline-color: rgba(100, 181, 246, 0.015);
+  --freq-color: #64b5f6;
+  --crackle-1: #0a1a1c;
+  --crackle-2: #1a3a3e;
+  --crackle-3: #0f2a2e;
+  --msg-border-player: #42a5f5;
+  --msg-callsign: #bbdefb;
+  --msg-timestamp: #546e7a;
+}
+
+/* ─── Reset & Base ─── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  height: 100%;
+  background: var(--bg);
+  font-family: 'Courier New', 'Courier', monospace;
+  color: var(--text);
+  overflow: hidden;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ─── Phone Frame ─── */
+.phone {
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  max-height: 812px;
+  background: var(--bg-dark);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 60px var(--btn-shadow);
+}
+
+/* ─── Scan Lines ─── */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    var(--scanline-color) 2px,
+    var(--scanline-color) 4px
+  );
+}
+
+/* ─── Vignette ─── */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+}
+
+/* ─── Frequency Wave Decor ─── */
+.freq-wave {
+  position: absolute;
+  bottom: 140px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.04;
+  overflow: hidden;
+}
+.freq-wave::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--freq-color) 0px,
+    transparent 2px,
+    transparent 8px,
+    var(--freq-color) 10px,
+    transparent 12px
+  );
+  animation: freqSweep 6s linear infinite;
+}
+@keyframes freqSweep {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── Signal Strength Bars ─── */
+.signal-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  margin-left: 6px;
+}
+.signal-bars .bar {
+  width: 4px;
+  background: var(--signal-bar-1);
+  border-radius: 1px 1px 0 0;
+  animation: signalPulse 1.2s ease-in-out infinite alternate;
+}
+.signal-bars .bar:nth-child(1) { height: 6px;  animation-delay: 0.0s; }
+.signal-bars .bar:nth-child(2) { height: 9px;  animation-delay: 0.15s; }
+.signal-bars .bar:nth-child(3) { height: 13px; animation-delay: 0.3s; }
+.signal-bars .bar:nth-child(4) { height: 16px; animation-delay: 0.45s; background: var(--signal-bar-4); }
+.signal-bars .bar:nth-child(5) { height: 20px; animation-delay: 0.6s; background: var(--signal-bar-5); }
+@keyframes signalPulse {
+  0%   { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+/* ─── HEADER ─── */
+.header {
+  position: relative;
+  z-index: 5;
+  background: linear-gradient(180deg, var(--bg-header), var(--bg-header-to));
+  border-bottom: 1px solid var(--accent-border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.header-icon {
+  font-size: 18px;
+  margin-right: 8px;
+}
+.header-title {
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-shadow: 0 0 8px var(--header-shadow);
+  flex: 1;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.header-enc {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  border: 1px solid var(--accent-border-dim);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-dot);
+  box-shadow: 0 0 6px var(--status-dot-glow);
+  animation: blink 2s step-end infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.2; }
+}
+
+/* ─── Theme Switcher Dots ─── */
+.theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px;
+  padding: 3px 6px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 20px;
+  position: relative;
+  z-index: 20;
+}
+.theme-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.25);
+  cursor: pointer;
+  transition: 0.2s;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+.theme-dot:hover {
+  opacity: 1;
+  transform: scale(1.2);
+  border-color: rgba(255,255,255,0.5);
+}
+.theme-dot.active {
+  opacity: 1;
+  border-color: #fff;
+  box-shadow: 0 0 8px currentColor;
+}
+.theme-dot-green {
+  background: #00ff00;
+  color: #00ff00;
+}
+.theme-dot-cyan {
+  background: #00ffff;
+  color: #00ffff;
+}
+.theme-dot-blue {
+  background: #64b5f6;
+  color: #64b5f6;
+}
+
+/* ─── Content ─── */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 5;
+  overflow: hidden;
+}
+
+/* ─── Step Indicator ─── */
+.step-indicator {
+  text-align: center;
+  padding: 14px 0 6px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.step-indicator span {
+  color: var(--text-dim);
+  font-weight: bold;
+}
+
+/* ─── Instruction Card ─── */
+.card-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  gap: 18px;
+}
+.card-icon {
+  font-size: 56px;
+  line-height: 1;
+  text-shadow: 0 0 20px var(--btn-shadow-hover);
+  animation: iconFloat 3s ease-in-out infinite;
+}
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.card-title {
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: var(--accent-bright);
+  text-shadow: 0 0 8px var(--btn-shadow-hover);
+  text-align: center;
+}
+.card-text {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.7;
+  text-align: center;
+  max-width: 320px;
+}
+.card-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  margin-top: 8px;
+  animation: hintPulse 2s ease-in-out infinite;
+}
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ─── Navigation Buttons ─── */
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 14px;
+}
+.btn {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  padding: 12px 16px;
+  background: var(--bg-button);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  color: var(--accent-bright);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  transition: all 0.15s;
+  min-height: 44px;
+  text-align: center;
+  flex: 1;
+}
+.btn:hover {
+  background: var(--bg-button-hover);
+  border-color: var(--btn-border-hover);
+  box-shadow: 0 0 8px var(--btn-shadow-hover);
+}
+.btn:active {
+  background: var(--bg-button-active);
+  transform: scale(0.97);
+}
+.btn-primary {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--btn-shadow), inset 0 0 8px var(--btn-shadow);
+}
+.btn-primary:hover {
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 16px var(--btn-shadow-hover), inset 0 0 12px var(--btn-shadow-hover);
+}
+.btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ─── Progress Dots ─── */
+.progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 0 18px;
+}
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg-button);
+  border: 1px solid var(--accent-border);
+  transition: all 0.3s;
+}
+.progress-dot.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 6px var(--accent-glow);
+}
+.progress-dot.completed {
+  background: var(--accent-dim);
+  border-color: var(--accent-dim);
+}
+
+/* ─── Responsive ─── */
+@media (max-height: 640px) {
+  .phone { max-height: 100vh; }
+  .header { padding: 8px 12px; }
+  .card-icon { font-size: 44px; }
+  .card-title { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Effects layers -->
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+  <div class="freq-wave"></div>
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header">
+    <span class="header-icon">◀</span>
+    <span class="header-title">TUTORIAL</span>
+    <div class="header-right">
+      <div class="theme-switcher">
+        <div class="theme-dot theme-dot-green active" data-theme="theme-green" title="Green (Default)"></div>
+        <div class="theme-dot theme-dot-cyan" data-theme="theme-cyan" title="Cyan"></div>
+        <div class="theme-dot theme-dot-blue" data-theme="theme-lightblue" title="Light Blue"></div>
+      </div>
+      <div class="signal-bars">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+      <div class="status-dot"></div>
+      <span class="header-enc">AES-256</span>
+    </div>
+  </div>
+
+  <!-- ═══ CONTENT ═══ -->
+  <div class="content">
+
+    <div class="step-indicator">Step <span id="stepNum">1</span> / <span id="stepTotal">5</span></div>
+
+    <div class="card-area" id="cardArea">
+      <div class="card-icon" id="cardIcon">📡</div>
+      <div class="card-title" id="cardTitle">WELCOME, OPERATIVE</div>
+      <div class="card-text" id="cardText">
+        You have been deployed to a contested zone. Your squad depends on clear comms, sharp radar awareness, and tactical extraction. This brief will get you mission-ready in under 2 minutes.
+      </div>
+      <div class="card-hint" id="cardHint">Tap NEXT to begin</div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn" id="btnBack" disabled>Back</button>
+      <button class="btn btn-primary" id="btnNext">Next</button>
+    </div>
+
+    <div class="progress-dots" id="progressDots">
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+(function() {
+  const THEME_KEY = 'signal-lost-theme';
+
+  function setTheme(themeName) {
+    const phone = document.querySelector('.phone');
+    phone.classList.remove('theme-cyan', 'theme-lightblue');
+    if (themeName && themeName !== 'theme-green') {
+      phone.classList.add(themeName);
+    }
+    document.querySelectorAll('.theme-dot').forEach(dot => {
+      dot.classList.toggle('active', dot.dataset.theme === themeName);
+    });
+    localStorage.setItem(THEME_KEY, themeName);
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) setTheme(saved);
+  });
+
+  document.addEventListener('click', function(e) {
+    const dot = e.target.closest('.theme-dot');
+    if (dot) setTheme(dot.dataset.theme);
+  });
+
+  // Tutorial steps
+  const steps = [
+    {
+      icon: '📡',
+      title: 'WELCOME, OPERATIVE',
+      text: 'You have been deployed to a contested zone. Your squad depends on clear comms, sharp radar awareness, and tactical extraction. This brief will get you mission-ready in under 2 minutes.',
+      hint: 'Tap NEXT to begin'
+    },
+    {
+      icon: '🗺️',
+      title: 'MAP BASICS',
+      text: 'The tactical map shows your position, squadmates, objectives, and extraction zones. Pinch to zoom. Tap and hold to mark waypoints. Green = friendly. Red = hostile contact. Yellow = objective.',
+      hint: 'Try the MAP tab after this brief'
+    },
+    {
+      icon: '📶',
+      title: 'RADAR AWARENESS',
+      text: 'Your radar sweeps every 3 seconds. Enemies appear as red blips when they move or fire. Use SONIC BURST to reveal cloaked targets. Stay still to reduce your own signature.',
+      hint: 'Watch for the sweep line'
+    },
+    {
+      icon: '⚡',
+      title: 'ABILITIES',
+      text: 'Each operative has 3 abilities: SONIC BURST (reveal), CLOAK (hide), and DECOY (distract). Abilities have cooldowns — use them wisely. Tap the ability drawer to activate.',
+      hint: 'Pull up the drawer in-game'
+    },
+    {
+      icon: '🚁',
+      title: 'EXTRACTION',
+      text: 'Reach the extraction zone before the timer hits zero. The zone shrinks over time. If you are downed, a squadmate can revive you within 60 seconds. Good luck, operative.',
+      hint: 'Tap FINISH to deploy'
+    }
+  ];
+
+  let currentStep = 0;
+
+  function renderStep() {
+    const step = steps[currentStep];
+    document.getElementById('cardIcon').textContent = step.icon;
+    document.getElementById('cardTitle').textContent = step.title;
+    document.getElementById('cardText').textContent = step.text;
+    document.getElementById('cardHint').textContent = step.hint;
+    document.getElementById('stepNum').textContent = currentStep + 1;
+
+    document.getElementById('btnBack').disabled = currentStep === 0;
+    document.getElementById('btnNext').textContent = currentStep === steps.length - 1 ? 'Finish' : 'Next';
+
+    // Update dots
+    document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+      dot.classList.remove('active', 'completed');
+      if (i < currentStep) dot.classList.add('completed');
+      else if (i === currentStep) dot.classList.add('active');
+    });
+  }
+
+  document.getElementById('btnNext').addEventListener('click', function() {
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      renderStep();
+    } else {
+      this.textContent = 'Deploying...';
+      setTimeout(() => { this.textContent = 'Finish'; }, 1200);
+    }
+  });
+
+  document.getElementById('btnBack').addEventListener('click', function() {
+    if (currentStep > 0) {
+      currentStep--;
+      renderStep();
+    }
+  });
+
+  renderStep();
+})();
+</script>
+</body>
+</html>

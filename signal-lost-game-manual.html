@@ -87,7 +87,13 @@ tr:hover td{background:rgba(255,255,255,0.01)}
 
 <h2 id="setup">Game Setup Flow</h2>
 
-<div class="card">
+<h3>Loading Flow</h3>
+<p>The game has a two-stage loading sequence:</p>
+<ul>
+<li><b>V6 — Particle Signal (Splash):</b> The first thing you see when you open the game. A Three.js particle animation that forms the SIGNAL LOST logo. Sets the tactical mood before entering the lobby.</li>
+<li><b>V1 — Terminal Boot (Pre-deployment):</b> After you set up the mission, pick roles, hit "Launch Mission" — this green-on-black boot sequence plays with an ASCII progress bar while the server generates objectives and deploys your squad. When it finishes, the mission starts.</li>
+</ul>
+
 <h3>Host creates a game</h3>
 <ol>
 <li>Enter your <b>Name</b> and <b>Callsign</b></li>

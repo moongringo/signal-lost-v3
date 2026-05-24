@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SIGNAL LOST — Training</title>
+<style>
+/* ─── Theme Variables (Green = Default) ─── */
+:root {
+  --accent: #00ff00;
+  --accent-rgb: 0, 255, 0;
+  --accent-dim: #2aff2a;
+  --accent-dim-rgb: 42, 255, 42;
+  --accent-glow: #3aff3a;
+  --accent-glow-rgb: 58, 255, 58;
+  --accent-bright: #6fff6a;
+  --accent-text: #b8ffb0;
+  --accent-muted: #5a8a5a;
+  --accent-dim-muted: #3a6a3a;
+  --accent-border: #1a3a1a;
+  --accent-border-light: #142814;
+  --accent-border-dim: #1f3a1f;
+  --accent-border-input: #1a2a1a;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b0d;
+  --bg-header: #0f220f;
+  --bg-header-to: #0a1a0a;
+  --bg-tab: #0a180a;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091409;
+  --bg-input: #0a180a;
+  --bg-input-field: #0a140a;
+  --bg-button: #0f2a0f;
+  --bg-button-hover: #1a3a1a;
+  --bg-button-active: #1f4a1f;
+  --bg-msg-player: rgba(30, 60, 30, 0.4);
+  --bg-msg-system: rgba(20, 40, 20, 0.2);
+  --bg-quick-btn: #0f1f0f;
+  --bg-quick-btn-hover: #1a3a1a;
+  --bg-quick-btn-active: #1f4a1f;
+  --text: #b8ffb0;
+  --text-dim: #6fff6a;
+  --text-muted: #3a6a3a;
+  --text-input: #b8ffb0;
+  --text-placeholder: #1f3a1f;
+  --text-enc-label: #2a5a2a;
+  --text-divider: #1a3a1a;
+  --text-divider-dash: #0f1f0f;
+  --text-system: #5a8a5a;
+  --text-system-strong: #7aff7a;
+  --text-transmission: #6a9a6a;
+  --text-quick-btn: #7aff7a;
+  --text-enc-border: #1a3a1a;
+  --scrollbar-thumb: #1a3a1a;
+  --signal-bar-1: #2aff2a;
+  --signal-bar-4: #4aff4a;
+  --signal-bar-5: #6aff6a;
+  --status-dot: #2aff2a;
+  --status-dot-glow: #2aff2a;
+  --tab-active: #8fff8a;
+  --tab-active-underline: #3aff3a;
+  --tab-active-glow: rgba(100, 255, 100, 0.2);
+  --tab-active-underline-shadow: rgba(58, 255, 58, 0.4);
+  --btn-border-hover: #3a6a3a;
+  --btn-shadow-hover: rgba(58, 255, 58, 0.15);
+  --btn-shadow: rgba(0, 255, 0, 0.08);
+  --input-focus-border: #2aff2a;
+  --input-focus-shadow: rgba(42, 255, 42, 0.05);
+  --send-btn-border: #2a5a2a;
+  --send-btn-text: #6fff6a;
+  --send-btn-border-hover: #3aff3a;
+  --send-btn-shadow-hover: rgba(58, 255, 58, 0.15);
+  --header-shadow: rgba(100, 255, 100, 0.3);
+  --scanline-color: rgba(0, 255, 0, 0.015);
+  --freq-color: #00ff00;
+  --crackle-1: #0a1a0a;
+  --crackle-2: #1a3a1a;
+  --crackle-3: #0f2a0f;
+  --msg-border-player: #2aff2a;
+  --msg-callsign: #6fff6a;
+  --msg-timestamp: #2a5a2a;
+}
+
+/* ─── Cyan Theme ─── */
+.theme-cyan {
+  --accent: #00ffff;
+  --accent-rgb: 0, 255, 255;
+  --accent-dim: #00e5e5;
+  --accent-dim-rgb: 0, 229, 229;
+  --accent-glow: #33ffff;
+  --accent-glow-rgb: 51, 255, 255;
+  --accent-bright: #66ffff;
+  --accent-text: #b0ffff;
+  --accent-muted: #5a9a9a;
+  --accent-dim-muted: #3a6a6a;
+  --accent-border: #1a3a3a;
+  --accent-border-light: #143838;
+  --accent-border-dim: #1f3a3a;
+  --accent-border-input: #1a3a3a;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b1b;
+  --bg-header: #0f2222;
+  --bg-header-to: #0a1a1a;
+  --bg-tab: #0a1818;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091414;
+  --bg-input: #0a1818;
+  --bg-input-field: #0a1414;
+  --bg-button: #0f2a2a;
+  --bg-button-hover: #1a3a3a;
+  --bg-button-active: #1f4a4a;
+  --bg-msg-player: rgba(30, 60, 60, 0.4);
+  --bg-msg-system: rgba(20, 40, 40, 0.2);
+  --bg-quick-btn: #0f1f1f;
+  --bg-quick-btn-hover: #1a3a3a;
+  --bg-quick-btn-active: #1f4a4a;
+  --text: #b0ffff;
+  --text-dim: #66ffff;
+  --text-muted: #3a6a6a;
+  --text-input: #b0ffff;
+  --text-placeholder: #1f3a3a;
+  --text-enc-label: #2a5a5a;
+  --text-divider: #1a3a3a;
+  --text-divider-dash: #0f1f1f;
+  --text-system: #5a9a9a;
+  --text-system-strong: #7affff;
+  --text-transmission: #6a9a9a;
+  --text-quick-btn: #7affff;
+  --text-enc-border: #1a3a3a;
+  --scrollbar-thumb: #1a3a3a;
+  --signal-bar-1: #00e5e5;
+  --signal-bar-4: #33ffff;
+  --signal-bar-5: #66ffff;
+  --status-dot: #00e5e5;
+  --status-dot-glow: #00e5e5;
+  --tab-active: #8affff;
+  --tab-active-underline: #33ffff;
+  --tab-active-glow: rgba(0, 255, 255, 0.2);
+  --tab-active-underline-shadow: rgba(51, 255, 255, 0.4);
+  --btn-border-hover: #3a6a6a;
+  --btn-shadow-hover: rgba(0, 255, 255, 0.15);
+  --btn-shadow: rgba(0, 255, 255, 0.08);
+  --input-focus-border: #00e5e5;
+  --input-focus-shadow: rgba(0, 229, 229, 0.05);
+  --send-btn-border: #2a5a5a;
+  --send-btn-text: #66ffff;
+  --send-btn-border-hover: #33ffff;
+  --send-btn-shadow-hover: rgba(51, 255, 255, 0.15);
+  --header-shadow: rgba(0, 255, 255, 0.3);
+  --scanline-color: rgba(0, 255, 255, 0.015);
+  --freq-color: #00ffff;
+  --crackle-1: #0a1a1a;
+  --crackle-2: #1a3a3a;
+  --crackle-3: #0f2a2a;
+  --msg-border-player: #00e5e5;
+  --msg-callsign: #66ffff;
+  --msg-timestamp: #2a5a5a;
+}
+
+/* ─── Light Blue Theme ─── */
+.theme-lightblue {
+  --accent: #64b5f6;
+  --accent-rgb: 100, 181, 246;
+  --accent-dim: #42a5f5;
+  --accent-dim-rgb: 66, 165, 245;
+  --accent-glow: #90caf9;
+  --accent-glow-rgb: 144, 202, 249;
+  --accent-bright: #bbdefb;
+  --accent-text: #e3f2fd;
+  --accent-muted: #90a4ae;
+  --accent-dim-muted: #607d8b;
+  --accent-border: #37474f;
+  --accent-border-light: #263238;
+  --accent-border-dim: #455a64;
+  --accent-border-input: #37474f;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b1d;
+  --bg-header: #0f2225;
+  --bg-header-to: #0a1a1c;
+  --bg-tab: #0a181a;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091416;
+  --bg-input: #0a181a;
+  --bg-input-field: #0a1416;
+  --bg-button: #0f2a2e;
+  --bg-button-hover: #1a3a3e;
+  --bg-button-active: #1f4a4e;
+  --bg-msg-player: rgba(30, 60, 70, 0.4);
+  --bg-msg-system: rgba(20, 40, 50, 0.2);
+  --bg-quick-btn: #0f1f22;
+  --bg-quick-btn-hover: #1a3a3e;
+  --bg-quick-btn-active: #1f4a4e;
+  --text: #e3f2fd;
+  --text-dim: #bbdefb;
+  --text-muted: #607d8b;
+  --text-input: #e3f2fd;
+  --text-placeholder: #455a64;
+  --text-enc-label: #546e7a;
+  --text-divider: #37474f;
+  --text-divider-dash: #263238;
+  --text-system: #90a4ae;
+  --text-system-strong: #bbdefb;
+  --text-transmission: #78909c;
+  --text-quick-btn: #bbdefb;
+  --text-enc-border: #37474f;
+  --scrollbar-thumb: #37474f;
+  --signal-bar-1: #42a5f5;
+  --signal-bar-4: #64b5f6;
+  --signal-bar-5: #90caf9;
+  --status-dot: #42a5f5;
+  --status-dot-glow: #42a5f5;
+  --tab-active: #e3f2fd;
+  --tab-active-underline: #64b5f6;
+  --tab-active-glow: rgba(100, 181, 246, 0.2);
+  --tab-active-underline-shadow: rgba(100, 181, 246, 0.4);
+  --btn-border-hover: #607d8b;
+  --btn-shadow-hover: rgba(100, 181, 246, 0.15);
+  --btn-shadow: rgba(100, 181, 246, 0.08);
+  --input-focus-border: #42a5f5;
+  --input-focus-shadow: rgba(66, 165, 245, 0.05);
+  --send-btn-border: #546e7a;
+  --send-btn-text: #bbdefb;
+  --send-btn-border-hover: #64b5f6;
+  --send-btn-shadow-hover: rgba(100, 181, 246, 0.15);
+  --header-shadow: rgba(100, 181, 246, 0.3);
+  --scanline-color: rgba(100, 181, 246, 0.015);
+  --freq-color: #64b5f6;
+  --crackle-1: #0a1a1c;
+  --crackle-2: #1a3a3e;
+  --crackle-3: #0f2a2e;
+  --msg-border-player: #42a5f5;
+  --msg-callsign: #bbdefb;
+  --msg-timestamp: #546e7a;
+}
+
+/* ─── Reset & Base ─── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  height: 100%;
+  background: var(--bg);
+  font-family: 'Courier New', 'Courier', monospace;
+  color: var(--text);
+  overflow: hidden;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ─── Phone Frame ─── */
+.phone {
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  max-height: 812px;
+  background: var(--bg-dark);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 60px var(--btn-shadow);
+}
+
+/* ─── Scan Lines ─── */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    var(--scanline-color) 2px,
+    var(--scanline-color) 4px
+  );
+}
+
+/* ─── Vignette ─── */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+}
+
+/* ─── Frequency Wave Decor ─── */
+.freq-wave {
+  position: absolute;
+  bottom: 140px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.04;
+  overflow: hidden;
+}
+.freq-wave::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--freq-color) 0px,
+    transparent 2px,
+    transparent 8px,
+    var(--freq-color) 10px,
+    transparent 12px
+  );
+  animation: freqSweep 6s linear infinite;
+}
+@keyframes freqSweep {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── Signal Strength Bars ─── */
+.signal-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  margin-left: 6px;
+}
+.signal-bars .bar {
+  width: 4px;
+  background: var(--signal-bar-1);
+  border-radius: 1px 1px 0 0;
+  animation: signalPulse 1.2s ease-in-out infinite alternate;
+}
+.signal-bars .bar:nth-child(1) { height: 6px;  animation-delay: 0.0s; }
+.signal-bars .bar:nth-child(2) { height: 9px;  animation-delay: 0.15s; }
+.signal-bars .bar:nth-child(3) { height: 13px; animation-delay: 0.3s; }
+.signal-bars .bar:nth-child(4) { height: 16px; animation-delay: 0.45s; background: var(--signal-bar-4); }
+.signal-bars .bar:nth-child(5) { height: 20px; animation-delay: 0.6s; background: var(--signal-bar-5); }
+@keyframes signalPulse {
+  0%   { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+/* ─── HEADER ─── */
+.header {
+  position: relative;
+  z-index: 5;
+  background: linear-gradient(180deg, var(--bg-header), var(--bg-header-to));
+  border-bottom: 1px solid var(--accent-border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.header-icon {
+  font-size: 18px;
+  margin-right: 8px;
+}
+.header-title {
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-shadow: 0 0 8px var(--header-shadow);
+  flex: 1;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.header-enc {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  border: 1px solid var(--accent-border-dim);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-dot);
+  box-shadow: 0 0 6px var(--status-dot-glow);
+  animation: blink 2s step-end infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.2; }
+}
+
+/* ─── Theme Switcher Dots ─── */
+.theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px;
+  padding: 3px 6px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 20px;
+  position: relative;
+  z-index: 20;
+}
+.theme-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.25);
+  cursor: pointer;
+  transition: 0.2s;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+.theme-dot:hover {
+  opacity: 1;
+  transform: scale(1.2);
+  border-color: rgba(255,255,255,0.5);
+}
+.theme-dot.active {
+  opacity: 1;
+  border-color: #fff;
+  box-shadow: 0 0 8px currentColor;
+}
+.theme-dot-green {
+  background: #00ff00;
+  color: #00ff00;
+}
+.theme-dot-cyan {
+  background: #00ffff;
+  color: #00ffff;
+}
+.theme-dot-blue {
+  background: #64b5f6;
+  color: #64b5f6;
+}
+
+/* ─── Content Scroll Area ─── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  z-index: 5;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+
+/* ─── Scoreboard ─── */
+.scoreboard {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 10px 0;
+}
+.score-item {
+  text-align: center;
+}
+.score-item .score-val {
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--accent-bright);
+  text-shadow: 0 0 12px var(--btn-shadow-hover);
+  line-height: 1;
+}
+.score-item .score-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ─── Timer ─── */
+.timer-display {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+  text-shadow: 0 0 8px var(--btn-shadow-hover);
+  padding: 6px 0;
+}
+
+/* ─── Target Range ─── */
+.range-area {
+  position: relative;
+  height: 180px;
+  background: var(--bg-input-field);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.range-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--accent-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--accent-border) 1px, transparent 1px);
+  background-size: 30px 30px;
+  opacity: 0.3;
+}
+.target {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: rgba(var(--accent-rgb), 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--accent-bright);
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.2s;
+  animation: targetPulse 2s ease-in-out infinite;
+}
+.target:active {
+  transform: scale(0.85);
+}
+.target.hit {
+  opacity: 0;
+  transform: scale(1.5);
+  pointer-events: none;
+}
+@keyframes targetPulse {
+  0%, 100% { box-shadow: 0 0 6px var(--accent); }
+  50% { box-shadow: 0 0 16px var(--accent-glow); }
+}
+
+/* ─── Mode Selection ─── */
+.mode-tabs {
+  display: flex;
+  gap: 6px;
+}
+.mode-tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  background: var(--bg-button);
+  border: 1px solid var(--accent-border);
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+.mode-tab:hover {
+  border-color: var(--btn-border-hover);
+  color: var(--text-dim);
+}
+.mode-tab.active {
+  background: var(--bg-button-active);
+  border-color: var(--accent);
+  color: var(--accent-bright);
+  box-shadow: 0 0 6px var(--btn-shadow);
+}
+
+/* ─── Stats Row ─── */
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.stat-box {
+  flex: 1;
+  background: var(--bg-button);
+  border: 1px solid var(--accent-border);
+  border-radius: 4px;
+  padding: 10px;
+  text-align: center;
+}
+.stat-box .stat-num {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--text-dim);
+}
+.stat-box .stat-name {
+  font-size: 8px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ─── Buttons ─── */
+.btn-row {
+  display: flex;
+  gap: 10px;
+}
+.btn {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  padding: 12px 16px;
+  background: var(--bg-button);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  color: var(--accent-bright);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  transition: all 0.15s;
+  min-height: 44px;
+  text-align: center;
+  flex: 1;
+}
+.btn:hover {
+  background: var(--bg-button-hover);
+  border-color: var(--btn-border-hover);
+  box-shadow: 0 0 8px var(--btn-shadow-hover);
+}
+.btn:active {
+  background: var(--bg-button-active);
+  transform: scale(0.97);
+}
+.btn-primary {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--btn-shadow), inset 0 0 8px var(--btn-shadow);
+}
+.btn-primary:hover {
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 16px var(--btn-shadow-hover), inset 0 0 12px var(--btn-shadow-hover);
+}
+
+/* ─── Divider ─── */
+.divider {
+  text-align: center;
+  font-size: 9px;
+  color: var(--text-divider);
+  padding: 4px 0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.divider::before, .divider::after {
+  content: '── ';
+  color: var(--text-divider-dash);
+}
+.divider::after { content: ' ──'; }
+
+/* ─── Responsive ─── */
+@media (max-height: 640px) {
+  .phone { max-height: 100vh; }
+  .header { padding: 8px 12px; }
+  .content { padding: 10px; gap: 10px; }
+  .range-area { height: 140px; }
+  .score-item .score-val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Effects layers -->
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+  <div class="freq-wave"></div>
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header">
+    <span class="header-icon">◀</span>
+    <span class="header-title">TRAINING</span>
+    <div class="header-right">
+      <div class="theme-switcher">
+        <div class="theme-dot theme-dot-green active" data-theme="theme-green" title="Green (Default)"></div>
+        <div class="theme-dot theme-dot-cyan" data-theme="theme-cyan" title="Cyan"></div>
+        <div class="theme-dot theme-dot-blue" data-theme="theme-lightblue" title="Light Blue"></div>
+      </div>
+      <div class="signal-bars">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+      <div class="status-dot"></div>
+      <span class="header-enc">AES-256</span>
+    </div>
+  </div>
+
+  <!-- ═══ CONTENT ═══ -->
+  <div class="content">
+
+    <!-- Scoreboard -->
+    <div class="scoreboard">
+      <div class="score-item">
+        <div class="score-val" id="scoreVal">0</div>
+        <div class="score-label">Score</div>
+      </div>
+      <div class="score-item">
+        <div class="score-val" id="accVal">0%</div>
+        <div class="score-label">Accuracy</div>
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer-display" id="timer">01:00</div>
+
+    <!-- Target Range -->
+    <div class="range-area" id="rangeArea">
+      <div class="range-grid"></div>
+      <div class="target" style="top:30px;left:40px;" data-points="10">10</div>
+      <div class="target" style="top:80px;left:120px;" data-points="20">20</div>
+      <div class="target" style="top:50px;left:220px;" data-points="30">30</div>
+      <div class="target" style="top:120px;left:60px;" data-points="15">15</div>
+      <div class="target" style="top:100px;left:280px;" data-points="25">25</div>
+    </div>
+
+    <div class="divider">Training Mode</div>
+
+    <!-- Mode Tabs -->
+    <div class="mode-tabs">
+      <div class="mode-tab active" data-mode="aim">Aim Training</div>
+      <div class="mode-tab" data-mode="move">Movement</div>
+      <div class="mode-tab" data-mode="recon">Recon</div>
+      <div class="mode-tab" data-mode="extract">Extraction</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num" id="hitsVal">0</div>
+        <div class="stat-name">Hits</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="missesVal">0</div>
+        <div class="stat-name">Misses</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="streakVal">0</div>
+        <div class="stat-name">Streak</div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-row">
+      <button class="btn btn-primary" id="startBtn">Start</button>
+      <button class="btn" id="resetBtn">Reset</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+(function() {
+  const THEME_KEY = 'signal-lost-theme';
+
+  function setTheme(themeName) {
+    const phone = document.querySelector('.phone');
+    phone.classList.remove('theme-cyan', 'theme-lightblue');
+    if (themeName && themeName !== 'theme-green') {
+      phone.classList.add(themeName);
+    }
+    document.querySelectorAll('.theme-dot').forEach(dot => {
+      dot.classList.toggle('active', dot.dataset.theme === themeName);
+    });
+    localStorage.setItem(THEME_KEY, themeName);
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) setTheme(saved);
+  });
+
+  document.addEventListener('click', function(e) {
+    const dot = e.target.closest('.theme-dot');
+    if (dot) setTheme(dot.dataset.theme);
+  });
+
+  // Mode tabs
+  document.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Training game state
+  let score = 0, hits = 0, misses = 0, streak = 0, maxStreak = 0;
+  let timerRunning = false;
+  let timeLeft = 60;
+  let timerInterval = null;
+
+  function updateStats() {
+    document.getElementById('scoreVal').textContent = score;
+    const total = hits + misses;
+    const acc = total > 0 ? Math.round((hits / total) * 100) : 0;
+    document.getElementById('accVal').textContent = acc + '%';
+    document.getElementById('hitsVal').textContent = hits;
+    document.getElementById('missesVal').textContent = misses;
+    document.getElementById('streakVal').textContent = streak;
+  }
+
+  function updateTimer() {
+    const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+    const s = String(timeLeft % 60).padStart(2, '0');
+    document.getElementById('timer').textContent = m + ':' + s;
+  }
+
+  function spawnTarget() {
+    const range = document.getElementById('rangeArea');
+    const existing = range.querySelectorAll('.target:not(.hit)');
+    if (existing.length >= 6) return;
+
+    const target = document.createElement('div');
+    target.className = 'target';
+    const points = [10, 15, 20, 25, 30][Math.floor(Math.random() * 5)];
+    target.textContent = points;
+    target.dataset.points = points;
+    const maxTop = range.clientHeight - 40;
+    const maxLeft = range.clientWidth - 40;
+    target.style.top = (20 + Math.random() * maxTop) + 'px';
+    target.style.left = (20 + Math.random() * maxLeft) + 'px';
+    range.appendChild(target);
+
+    target.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!timerRunning) return;
+      score += parseInt(this.dataset.points);
+      hits++;
+      streak++;
+      if (streak > maxStreak) maxStreak = streak;
+      this.classList.add('hit');
+      setTimeout(() => this.remove(), 250);
+      updateStats();
+      spawnTarget();
+    });
+  }
+
+  document.getElementById('rangeArea').addEventListener('click', function(e) {
+    if (!timerRunning) return;
+    if (e.target === this || e.target.classList.contains('range-grid')) {
+      misses++;
+      streak = 0;
+      updateStats();
+    }
+  });
+
+  document.getElementById('startBtn').addEventListener('click', function() {
+    if (timerRunning) return;
+    timerRunning = true;
+    this.textContent = 'Running...';
+    this.disabled = true;
+
+    // Reset targets
+    document.querySelectorAll('.target').forEach(t => t.remove());
+    for (let i = 0; i < 5; i++) spawnTarget();
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimer();
+      if (Math.random() > 0.6) spawnTarget();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('startBtn').textContent = 'Start';
+        document.getElementById('startBtn').disabled = false;
+      }
+    }, 1000);
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', function() {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    score = 0; hits = 0; misses = 0; streak = 0; maxStreak = 0;
+    timeLeft = 60;
+    updateStats();
+    updateTimer();
+    document.getElementById('startBtn').textContent = 'Start';
+    document.getElementById('startBtn').disabled = false;
+    document.querySelectorAll('.target').forEach(t => t.remove());
+    const defaults = [
+      { t: 30, l: 40, p: 10 },
+      { t: 80, l: 120, p: 20 },
+      { t: 50, l: 220, p: 30 },
+      { t: 120, l: 60, p: 15 },
+      { t: 100, l: 280, p: 25 }
+    ];
+    defaults.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'target';
+      el.style.top = d.t + 'px';
+      el.style.left = d.l + 'px';
+      el.dataset.points = d.p;
+      el.textContent = d.p;
+      document.getElementById('rangeArea').appendChild(el);
+      el.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!timerRunning) return;
+        score += parseInt(this.dataset.points);
+        hits++;
+        streak++;
+        this.classList.add('hit');
+        setTimeout(() => this.remove(), 250);
+        updateStats();
+        spawnTarget();
+      });
+    });
+  });
+
+  // Bind initial targets
+  document.querySelectorAll('.target').forEach(t => {
+    t.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!timerRunning) return;
+      score += parseInt(this.dataset.points);
+      hits++;
+      streak++;
+      this.classList.add('hit');
+      setTimeout(() => this.remove(), 250);
+      updateStats();
+      spawnTarget();
+    });
+  });
+})();
+</script>
+</body>
+</html>
