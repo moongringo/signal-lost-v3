@@ -13,7 +13,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <link rel="stylesheet" href="styles-v2.css?v=4">
+  <link rel="stylesheet" href="styles-v2.css?v=5">
   <script>
     // Splash dismiss failsafe — runs before game-v2.js loads
     // This is the PRIMARY splash handler on mobile. game-v2.js may arrive late or not at all.
@@ -467,34 +467,26 @@
             <button data-theme-palette="night" class="theme-chip">Night</button>
           </div>
         </div>
-        <div class="card">
-          <h3>Biome Zones</h3>
-          <div class="biome-legend">
-            <div class="biome-legend-item"><span class="biome-dot biome-urban"></span><strong>Urban</strong> — dense buildings, short sightlines</div>
-            <div class="biome-legend-item"><span class="biome-dot biome-forest"></span><strong>Forest</strong> — reduced signal, threats hide</div>
-            <div class="biome-legend-item"><span class="biome-dot biome-industrial"></span><strong>Industrial</strong> — open sightlines, signal boost</div>
-          </div>
-        </div>
       </section>
       <section class="setup-col wide">
         <div class="card map-card">
-          <h3>Marker Placement <small>Click map to add markers</small></h3>
+          <h3>Pick Location <small>Click map to set your position</small></h3>
           <div id="setupMap" class="map-container"></div>
-          <div class="marker-toolbar">
+          <div class="marker-toolbar" style="display:none">
             <input id="markerLat" type="hidden" value="">
             <input id="markerLng" type="hidden" value="">
-            <select id="markerType">
+            <select id="markerType" style="display:none">
               <option value="Clue">Clue</option>
               <option value="Cache">Cache</option>
               <option value="Waypoint">Waypoint</option>
               <option value="Danger">Danger</option>
               <option value="Extraction">Extraction</option>
             </select>
-            <input id="markerTitle" type="text" placeholder="Marker title">
-            <button id="addMarker" class="compact-button">Add</button>
-            <button id="clearMarkers" class="compact-button danger-button">Clear</button>
+            <input id="markerTitle" type="hidden" value="">
+            <button id="addMarker" class="compact-button" style="display:none">Add</button>
+            <button id="clearMarkers" class="compact-button danger-button" style="display:none">Clear</button>
           </div>
-          <div id="markerList" class="marker-list"></div>
+          <div id="markerList" class="marker-list" style="display:none"></div>
         </div>
       </section>
     </main>
