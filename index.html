@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#0a0e1a">
+  <meta name="theme-color" content="#0d1b0d">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Signal Lost">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="application-name" content="Signal Lost">
-  <title>Signal Lost v2</title>
+  <title>Signal Lost v3</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <link rel="stylesheet" href="styles-v2.css?v=3">
+  <link rel="stylesheet" href="styles-v2.css?v=4">
   <script>
     // Splash dismiss failsafe — runs before game-v2.js loads
     // This is the PRIMARY splash handler on mobile. game-v2.js may arrive late or not at all.
@@ -82,6 +82,44 @@
   </script>
 </head>
 <body data-screen="splash" data-theme="classic">
+  <!-- v3 Ambient Decorations -->
+  <div class="v3-scanlines" aria-hidden="true"></div>
+  <div class="v3-vignette" aria-hidden="true"></div>
+  <div class="v3-freq-wave" aria-hidden="true"></div>
+  <!-- v3 Theme Switcher -->
+  <div class="v3-theme-switcher" id="v3ThemeSwitcher">
+    <div class="v3-theme-dot active" data-theme="green" title="Green"></div>
+    <div class="v3-theme-dot" data-theme="cyan" title="Cyan"></div>
+    <div class="v3-theme-dot" data-theme="lightblue" title="Light Blue"></div>
+  </div>
+  <script>
+  /* v3 Theme Switcher */
+  (function() {
+    var switcher = document.getElementById('v3ThemeSwitcher');
+    if (switcher) {
+      switcher.addEventListener('click', function(e) {
+        var dot = e.target.closest('.v3-theme-dot');
+        if (!dot) return;
+        var theme = dot.getAttribute('data-theme');
+        document.body.setAttribute('data-theme', theme);
+        document.querySelectorAll('.v3-theme-dot').forEach(function(d) {
+          d.classList.toggle('active', d === dot);
+        });
+        try { localStorage.setItem('v3-theme', theme); } catch(e) {}
+      });
+      // Restore saved theme
+      try {
+        var saved = localStorage.getItem('v3-theme');
+        if (saved) {
+          document.body.setAttribute('data-theme', saved);
+          document.querySelectorAll('.v3-theme-dot').forEach(function(d) {
+            d.classList.toggle('active', d.getAttribute('data-theme') === saved);
+          });
+        }
+      } catch(e) {}
+    }
+  })();
+  </script>
   <canvas id="themePatternCanvas" aria-hidden="true"></canvas>
 
   <!-- ====== SPLASH ====== -->
