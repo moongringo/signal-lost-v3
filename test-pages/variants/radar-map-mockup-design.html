@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Signal Lost — Map &amp; Radar</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ============================================================
+   CSS CUSTOM PROPERTIES — Theme System (matches chat-mockup)
+   ============================================================ */
+:root {
+  --accent: #00ff00;
+  --accent-rgb: 0, 255, 0;
+  --accent-dim: #2aff2a;
+  --accent-dim-rgb: 42, 255, 42;
+  --accent-glow: #3aff3a;
+  --accent-glow-rgb: 58, 255, 58;
+  --accent-bright: #6fff6a;
+  --accent-text: #b8ffb0;
+  --accent-muted: #5a8a5a;
+  --accent-dim-muted: #3a6a3a;
+  --accent-border: #1a3a1a;
+  --accent-border-light: #142814;
+  --accent-border-dim: #1f3a1f;
+  --accent-border-input: #1a2a1a;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b0d;
+  --bg-header: #0f220f;
+  --bg-header-to: #0a1a0a;
+  --bg-tab: #0a180a;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091409;
+  --bg-input: #0a180a;
+  --bg-input-field: #0a140a;
+  --bg-button: #0f2a0f;
+  --bg-button-hover: #1a3a1a;
+  --bg-button-active: #1f4a1f;
+  --bg-msg-player: rgba(30, 60, 30, 0.4);
+  --bg-msg-system: rgba(20, 40, 20, 0.2);
+  --bg-quick-btn: #0f1f0f;
+  --bg-quick-btn-hover: #1a3a1a;
+  --bg-quick-btn-active: #1f4a1f;
+  --text: #b8ffb0;
+  --text-dim: #6fff6a;
+  --text-muted: #3a6a3a;
+  --text-input: #b8ffb0;
+  --text-placeholder: #1f3a1f;
+  --text-enc-label: #2a5a2a;
+  --text-divider: #1a3a1a;
+  --text-divider-dash: #0f1f0f;
+  --text-system: #5a8a5a;
+  --text-system-strong: #7aff7a;
+  --text-transmission: #6a9a6a;
+  --text-quick-btn: #7aff7a;
+  --text-enc-border: #1a3a1a;
+  --scrollbar-thumb: #1a3a1a;
+  --signal-bar-1: #2aff2a;
+  --signal-bar-4: #4aff4a;
+  --signal-bar-5: #6aff6a;
+  --status-dot: #2aff2a;
+  --status-dot-glow: #2aff2a;
+  --tab-active: #8fff8a;
+  --tab-active-underline: #3aff3a;
+  --tab-active-glow: rgba(100, 255, 100, 0.2);
+  --tab-active-underline-shadow: rgba(58, 255, 58, 0.4);
+  --btn-border-hover: #3a6a3a;
+  --btn-shadow-hover: rgba(58, 255, 58, 0.15);
+  --btn-shadow: rgba(0, 255, 0, 0.08);
+  --input-focus-border: #2aff2a;
+  --input-focus-shadow: rgba(42, 255, 42, 0.05);
+  --send-btn-border: #2a5a2a;
+  --send-btn-text: #6fff6a;
+  --send-btn-border-hover: #3aff3a;
+  --send-btn-shadow-hover: rgba(58, 255, 58, 0.15);
+  --header-shadow: rgba(100, 255, 100, 0.3);
+  --scanline-color: rgba(0, 255, 0, 0.015);
+  --freq-color: #00ff00;
+  --crackle-1: #0a1a0a;
+  --crackle-2: #1a3a1a;
+  --crackle-3: #0f2a0f;
+  --msg-border-player: #2aff2a;
+  --msg-callsign: #6fff6a;
+  --msg-timestamp: #2a5a2a;
+
+  --radar-bg: #050505;
+  --radar-border: var(--accent-border-light);
+  --leaflet-hue: 180deg;
+}
+
+/* ---- Cyan Theme ---- */
+.theme-cyan {
+  --accent: #00ffff;
+  --accent-rgb: 0, 255, 255;
+  --accent-dim: #00e5e5;
+  --accent-dim-rgb: 0, 229, 229;
+  --accent-glow: #33ffff;
+  --accent-glow-rgb: 51, 255, 255;
+  --accent-bright: #66ffff;
+  --accent-text: #b0ffff;
+  --accent-muted: #5a9a9a;
+  --accent-dim-muted: #3a6a6a;
+  --accent-border: #1a3a3a;
+  --accent-border-light: #143838;
+  --accent-border-dim: #1f3a3a;
+  --accent-border-input: #1a3a3a;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b1b;
+  --bg-header: #0f2222;
+  --bg-header-to: #0a1a1a;
+  --bg-tab: #0a1818;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091414;
+  --bg-input: #0a1818;
+  --bg-input-field: #0a1414;
+  --bg-button: #0f2a2a;
+  --bg-button-hover: #1a3a3a;
+  --bg-button-active: #1f4a4a;
+  --bg-msg-player: rgba(30, 60, 60, 0.4);
+  --bg-msg-system: rgba(20, 40, 40, 0.2);
+  --bg-quick-btn: #0f1f1f;
+  --bg-quick-btn-hover: #1a3a3a;
+  --bg-quick-btn-active: #1f4a4a;
+  --text: #b0ffff;
+  --text-dim: #66ffff;
+  --text-muted: #3a6a6a;
+  --text-input: #b0ffff;
+  --text-placeholder: #1f3a3a;
+  --text-enc-label: #2a5a5a;
+  --text-divider: #1a3a3a;
+  --text-divider-dash: #0f1f1f;
+  --text-system: #5a9a9a;
+  --text-system-strong: #7affff;
+  --text-transmission: #6a9a9a;
+  --text-quick-btn: #7affff;
+  --text-enc-border: #1a3a3a;
+  --scrollbar-thumb: #1a3a3a;
+  --signal-bar-1: #00e5e5;
+  --signal-bar-4: #33ffff;
+  --signal-bar-5: #66ffff;
+  --status-dot: #00e5e5;
+  --status-dot-glow: #00e5e5;
+  --tab-active: #8affff;
+  --tab-active-underline: #33ffff;
+  --tab-active-glow: rgba(0, 255, 255, 0.2);
+  --tab-active-underline-shadow: rgba(51, 255, 255, 0.4);
+  --btn-border-hover: #3a6a6a;
+  --btn-shadow-hover: rgba(0, 255, 255, 0.15);
+  --btn-shadow: rgba(0, 255, 255, 0.08);
+  --input-focus-border: #00e5e5;
+  --input-focus-shadow: rgba(0, 229, 229, 0.05);
+  --send-btn-border: #2a5a5a;
+  --send-btn-text: #66ffff;
+  --send-btn-border-hover: #33ffff;
+  --send-btn-shadow-hover: rgba(51, 255, 255, 0.15);
+  --header-shadow: rgba(0, 255, 255, 0.3);
+  --scanline-color: rgba(0, 255, 255, 0.015);
+  --freq-color: #00ffff;
+  --crackle-1: #0a1a1a;
+  --crackle-2: #1a3a3a;
+  --crackle-3: #0f2a2a;
+  --msg-border-player: #00e5e5;
+  --msg-callsign: #66ffff;
+  --msg-timestamp: #2a5a5a;
+
+  --radar-bg: #050505;
+  --radar-border: var(--accent-border-light);
+  --leaflet-hue: 140deg;
+}
+
+/* ---- Light Blue Theme ---- */
+.theme-lightblue {
+  --accent: #64b5f6;
+  --accent-rgb: 100, 181, 246;
+  --accent-dim: #42a5f5;
+  --accent-dim-rgb: 66, 165, 245;
+  --accent-glow: #90caf9;
+  --accent-glow-rgb: 144, 202, 249;
+  --accent-bright: #bbdefb;
+  --accent-text: #e3f2fd;
+  --accent-muted: #90a4ae;
+  --accent-dim-muted: #607d8b;
+  --accent-border: #37474f;
+  --accent-border-light: #263238;
+  --accent-border-dim: #455a64;
+  --accent-border-input: #37474f;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b1d;
+  --bg-header: #0f2225;
+  --bg-header-to: #0a1a1c;
+  --bg-tab: #0a181a;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091416;
+  --bg-input: #0a181a;
+  --bg-input-field: #0a1416;
+  --bg-button: #0f2a2e;
+  --bg-button-hover: #1a3a3e;
+  --bg-button-active: #1f4a4e;
+  --bg-msg-player: rgba(30, 60, 70, 0.4);
+  --bg-msg-system: rgba(20, 40, 50, 0.2);
+  --bg-quick-btn: #0f1f22;
+  --bg-quick-btn-hover: #1a3a3e;
+  --bg-quick-btn-active: #1f4a4e;
+  --text: #e3f2fd;
+  --text-dim: #bbdefb;
+  --text-muted: #607d8b;
+  --text-input: #e3f2fd;
+  --text-placeholder: #455a64;
+  --text-enc-label: #546e7a;
+  --text-divider: #37474f;
+  --text-divider-dash: #263238;
+  --text-system: #90a4ae;
+  --text-system-strong: #bbdefb;
+  --text-transmission: #78909c;
+  --text-quick-btn: #bbdefb;
+  --text-enc-border: #37474f;
+  --scrollbar-thumb: #37474f;
+  --signal-bar-1: #42a5f5;
+  --signal-bar-4: #64b5f6;
+  --signal-bar-5: #90caf9;
+  --status-dot: #42a5f5;
+  --status-dot-glow: #42a5f5;
+  --tab-active: #e3f2fd;
+  --tab-active-underline: #64b5f6;
+  --tab-active-glow: rgba(100, 181, 246, 0.2);
+  --tab-active-underline-shadow: rgba(100, 181, 246, 0.4);
+  --btn-border-hover: #607d8b;
+  --btn-shadow-hover: rgba(100, 181, 246, 0.15);
+  --btn-shadow: rgba(100, 181, 246, 0.08);
+  --input-focus-border: #42a5f5;
+  --input-focus-shadow: rgba(66, 165, 245, 0.05);
+  --send-btn-border: #546e7a;
+  --send-btn-text: #bbdefb;
+  --send-btn-border-hover: #64b5f6;
+  --send-btn-shadow-hover: rgba(100, 181, 246, 0.15);
+  --header-shadow: rgba(100, 181, 246, 0.3);
+  --scanline-color: rgba(100, 181, 246, 0.015);
+  --freq-color: #64b5f6;
+  --crackle-1: #0a1a1c;
+  --crackle-2: #1a3a3e;
+  --crackle-3: #0f2a2e;
+  --msg-border-player: #42a5f5;
+  --msg-callsign: #bbdefb;
+  --msg-timestamp: #546e7a;
+
+  --radar-bg: #050505;
+  --radar-border: var(--accent-border-light);
+  --leaflet-hue: 200deg;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  background:var(--bg);
+  overflow:hidden;
+  font-family:'Courier New',Courier,monospace;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+}
+
+.phone{
+  width:100%;
+  max-width:420px;
+  height:100vh;
+  background:var(--bg-dark);
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 0 60px var(--btn-shadow);
+  transition:background 0.3s;
+}
+
+/* ─── Scan Lines ─── */
+.scanlines{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:10;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    var(--scanline-color) 2px,
+    var(--scanline-color) 4px
+  );
+}
+
+/* ─── Vignette ─── */
+.vignette{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:9;
+  background:radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+}
+
+/* ─── Frequency Wave Decor ─── */
+.freq-wave{
+  position:absolute;
+  bottom:140px;
+  left:0;
+  right:0;
+  height:60px;
+  z-index:1;
+  pointer-events:none;
+  opacity:0.04;
+  overflow:hidden;
+}
+.freq-wave::before{
+  content:'';
+  position:absolute;
+  width:200%;
+  height:100%;
+  background:repeating-linear-gradient(
+    90deg,
+    var(--freq-color) 0px,
+    transparent 2px,
+    transparent 8px,
+    var(--freq-color) 10px,
+    transparent 12px
+  );
+  animation:freqSweep 6s linear infinite;
+}
+@keyframes freqSweep{
+  0%   { transform:translateX(0); }
+  100% { transform:translateX(-50%); }
+}
+
+
+/* ---- Theme Switcher (horizontal, inside HUD) ---- */
+.theme-switcher{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:3px 6px;
+  background:rgba(0,0,0,0.4);
+  border-radius:20px;
+  position:relative;
+  z-index:20;
+}
+.theme-dot{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  border:2px solid var(--accent-border);
+  cursor:pointer;
+  transition:0.2s;
+  opacity:0.6;
+  flex-shrink:0;
+}
+.theme-dot:hover{
+  opacity:1;
+  transform:scale(1.2);
+  border-color:var(--btn-border-hover);
+}
+.theme-dot.active{
+  opacity:1;
+  border-color:var(--accent);
+  box-shadow:0 0 8px currentColor;
+}
+.theme-dot-green{background:var(--accent);color:var(--accent);}
+.theme-dot-cyan{background:#00ffff;color:#00ffff;}
+.theme-dot-blue{background:#64b5f6;color:#64b5f6;}
+
+/* ---- HUD (top 40px) ---- */
+.hud{
+  height:40px;
+  min-height:40px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:linear-gradient(180deg, var(--bg-header), var(--bg-header-to));
+  border-bottom:1px solid var(--accent-border);
+  padding:0 10px;
+  z-index:1000;
+  position:relative;
+}
+.hud-left{
+  color:var(--accent-bright);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:1px;
+}
+.hud-right{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:var(--accent-text);
+  font-size:10px;
+  letter-spacing:0.5px;
+}
+.hud-sig{
+  color:var(--accent-bright);
+}
+.hud-dot{
+  display:inline-block;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  margin-left:4px;
+  animation:pulse-dot 1.2s infinite;
+}
+
+@keyframes pulse-dot{
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:0.4;transform:scale(0.7);}
+}
+
+/* ---- Map Container ---- */
+.map-wrap{
+  position:relative;
+  flex:1;
+  min-height:0;
+}
+#map{
+  width:100%;
+  height:100%;
+}
+
+/* Leaflet dark tile override — hue-rotate set via theme */
+.leaflet-tile-pane{
+  filter:brightness(0.4) invert(1) hue-rotate(var(--leaflet-hue)) saturate(0.6);
+}
+
+/* ---- Player Marker ---- */
+.player-marker{
+  width:16px;
+  height:16px;
+  background:var(--accent);
+  border:2px solid var(--accent-glow);
+  border-radius:50%;
+  box-shadow:0 0 10px var(--accent),0 0 30px rgba(var(--accent-rgb),0.4);
+  animation:player-pulse 1.5s ease-in-out infinite;
+}
+@keyframes player-pulse{
+  0%,100%{box-shadow:0 0 10px var(--accent),0 0 30px rgba(var(--accent-rgb),0.4);transform:scale(1);}
+  50%{box-shadow:0 0 20px var(--accent-glow),0 0 50px rgba(var(--accent-glow-rgb),0.6);transform:scale(1.15);}
+}
+
+/* ---- Objective marker labels ---- */
+.obj-label{
+  background:rgba(10,10,10,0.85);
+  border:1px solid #ccaa00;
+  color:#ffdd33;
+  font-family:'Courier New',monospace;
+  font-size:9px;
+  padding:1px 5px;
+  border-radius:2px;
+  white-space:nowrap;
+  letter-spacing:0.5px;
+}
+.extract-label{
+  border-color:#cc3333;
+  color:#ff4444;
+}
+
+/* ---- Emergency Stop ---- */
+.emergency-stop{
+  position:absolute;
+  top:6px;
+  right:6px;
+  z-index:5000;
+  background:#b30000;
+  color:#fff;
+  border:1px solid #ff2222;
+  font-family:'Courier New',monospace;
+  font-size:8px;
+  font-weight:700;
+  padding:3px 6px;
+  border-radius:2px;
+  cursor:pointer;
+  letter-spacing:0.5px;
+  box-shadow:0 0 6px rgba(200,0,0,0.5);
+  transition:background 0.15s;
+  line-height:1.2;
+}
+.emergency-stop:hover{
+  background:#d60000;
+}
+
+/* ---- Tactical Grid Overlay ---- */
+.grid-overlay{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:400;
+  opacity:0;
+  transition:opacity 0.3s;
+}
+.grid-overlay.active{
+  opacity:1;
+}
+
+/* ---- Screen Navigation Bar (tabs) ---- */
+.nav-bar{
+  display:flex;
+  background:var(--bg-tab);
+  border-bottom:1px solid var(--accent-border-light);
+  flex-shrink:0;
+  z-index:500;
+}
+.nav-btn{
+  flex:1;
+  text-align:center;
+  padding:7px 4px;
+  font-family:'Courier New',monospace;
+  font-size:10px;
+  letter-spacing:1.5px;
+  color:var(--text-muted);
+  cursor:pointer;
+  position:relative;
+  text-transform:uppercase;
+  transition:color 0.2s;
+  background:transparent;
+  border:none;
+}
+.nav-btn:hover{color:var(--text-dim);}
+.nav-btn.active{
+  opacity:1;
+  color:var(--tab-active);
+  text-shadow:0 0 6px var(--tab-active-glow);
+}
+.nav-btn.active::after{
+  content:'';
+  position:absolute;
+  bottom:0;
+  left:20%;
+  width:60%;
+  height:2px;
+  background:var(--tab-active-underline);
+  box-shadow:0 0 8px var(--tab-active-underline), 0 0 12px var(--tab-active-underline-shadow);
+  border-radius:1px;
+}
+
+/* ---- Full-Screen Radar View ---- */
+.full-radar{
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  z-index:300;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+.full-radar.active{
+  display:flex;
+}
+.full-radar .radar-container{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:auto;
+}
+.full-radar canvas{
+  display:block;
+  border-radius:50%;
+  box-shadow:0 0 30px rgba(var(--accent-rgb),0.15),0 0 80px rgba(var(--accent-rgb),0.08);
+}
+.full-radar.show-map .map-bg-layer{
+  display:block;
+}
+.map-bg-layer{
+  display:none;
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  z-index:1;
+  overflow:hidden;
+}
+.map-bg-layer iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  filter:brightness(0.4) invert(1) hue-rotate(var(--leaflet-hue)) saturate(0.6);
+}
+.scan-line{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:2px;
+  background:linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity:0;
+  pointer-events:none;
+  z-index:450;
+}
+.scan-line.scanning{
+  animation:scanSweep 2s ease-in-out forwards;
+}
+@keyframes scanSweep{
+  0%{top:0;opacity:0;}
+  10%{opacity:1;}
+  90%{opacity:1;}
+  100%{top:100%;opacity:0;}
+}
+
+/* ---- Bottom Drawer ---- */
+.drawer-wrap{
+  position:relative;
+  z-index:2000;
+}
+
+.drawer-tab{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:var(--bg-tab);
+  border-top:1px solid var(--accent-border-light);
+  border-bottom:1px solid var(--accent-border-light);
+  color:var(--accent-text);
+  font-size:10px;
+  letter-spacing:2px;
+  padding:6px 0;
+  cursor:pointer;
+  user-select:none;
+  transition:background 0.15s;
+}
+.drawer-tab:hover{
+  background:var(--bg-button-hover);
+}
+.drawer-tab .arrow{
+  display:inline-block;
+  transition:transform 0.3s ease;
+  margin-right:6px;
+  font-size:12px;
+}
+.drawer-tab.open .arrow{
+  transform:rotate(180deg);
+}
+
+.drawer-body{
+  background:var(--bg-dark);
+  border-top:1px solid var(--accent-border-light);
+  overflow:hidden;
+  transition:height 0.35s cubic-bezier(0.4,0,0.2,1);
+  height:0;
+}
+.drawer-body.open{
+  height:auto;
+}
+
+.drawer-collapsed{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:6px 10px;
+  min-height:90px;
+  background:var(--bg-dark);
+}
+
+/* Collapsed: radar canvas area */
+.drawer-radar{
+  flex-shrink:0;
+}
+#radarCanvas{
+  display:block;
+  background:var(--radar-bg);
+  border:1px solid var(--radar-border);
+  border-radius:50%;
+}
+
+/* Collapsed: buttons */
+.drawer-quick-btns{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  flex:1;
+  margin-left:10px;
+}
+.drawer-quick-btns button{
+  background:var(--bg-button);
+  border:1px solid var(--accent-border);
+  color:var(--accent-text);
+  font-family:'Courier New',monospace;
+  font-size:9px;
+  padding:8px 6px;
+  border-radius:3px;
+  cursor:pointer;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  transition:background 0.15s;
+}
+.drawer-quick-btns button:hover{
+  background:var(--bg-button-hover);
+}
+.drawer-quick-btns button:active{
+  background:var(--bg-button-active);
+}
+
+/* ---- Expanded Drawer Content ---- */
+.drawer-expanded{
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* Ability buttons */
+.abilities-row{
+  display:flex;
+  gap:8px;
+}
+.ability-btn{
+  position:relative;
+  flex:1;
+  background:var(--bg-button);
+  border:1px solid var(--accent-border);
+  color:var(--accent-text);
+  font-family:'Courier New',monospace;
+  font-size:9px;
+  padding:14px 4px;
+  border-radius:3px;
+  cursor:pointer;
+  text-align:center;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+  transition:background 0.15s;
+  overflow:hidden;
+}
+.ability-btn:hover{
+  background:var(--bg-button-hover);
+}
+.ability-btn.cooldown{
+  opacity:0.45;
+  cursor:not-allowed;
+}
+.ability-btn .cooldown-overlay{
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:0%;
+  background:rgba(var(--accent-dim-rgb),0.35);
+  transition:height 0.3s;
+}
+.ability-btn.cooldown .cooldown-overlay{
+  height:65%;
+}
+.ability-btn .ability-label{
+  position:relative;
+  z-index:1;
+}
+.ability-btn .cooldown-text{
+  position:relative;
+  z-index:1;
+  font-size:7px;
+  color:var(--text-muted);
+  display:block;
+  margin-top:3px;
+}
+
+/* Inventory pills */
+.inventory-row{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.inv-pill{
+  background:var(--bg-button);
+  border:1px solid var(--accent-border);
+  color:var(--accent-text);
+  font-size:9px;
+  padding:4px 10px;
+  border-radius:12px;
+  letter-spacing:0.5px;
+}
+
+/* Squad list */
+.squad-row{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.squad-row .section-title{
+  color:var(--text-dim);
+  font-size:8px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.squad-member{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:3px 0;
+}
+.squad-member .status-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  flex-shrink:0;
+}
+.squad-member .status-dot.alive{background:var(--accent);}
+.squad-member .status-dot.downed{background:#ffaa00;}
+.squad-member .status-dot.missing{background:#555;}
+.squad-member .squad-name{
+  color:var(--accent-text);
+  font-size:10px;
+  flex:1;
+}
+.squad-member .squad-status{
+  font-size:8px;
+  color:var(--text-muted);
+  letter-spacing:0.5px;
+}
+
+/* Objectives checklist */
+.objectives-row{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.objectives-row .section-title{
+  color:var(--text-dim);
+  font-size:8px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.obj-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:9px;
+  color:var(--accent-text);
+  letter-spacing:0.5px;
+}
+.obj-item .check{
+  width:12px;
+  height:12px;
+  border:1px solid var(--accent-border);
+  border-radius:2px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  font-size:8px;
+  color:var(--accent-text);
+}
+.obj-item.done .check{
+  background:var(--accent-dim);
+  border-color:var(--accent);
+}
+
+/* GPS coords */
+.gps-row{
+  display:flex;
+  justify-content:space-between;
+  color:var(--text-dim);
+  font-size:8px;
+  letter-spacing:1px;
+  border-top:1px solid var(--accent-border);
+  padding-top:8px;
+}
+
+/* ---- Grid Toggle Switch ---- */
+.toggle-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.toggle-label{
+  font-size:9px;
+  color:var(--text-dim);
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.toggle-switch{
+  position:relative;
+  width:36px;
+  height:18px;
+  background:var(--bg-button);
+  border:1px solid var(--accent-border);
+  border-radius:9px;
+  cursor:pointer;
+  transition:background 0.2s;
+}
+.toggle-switch.active{
+  background:var(--accent-dim);
+}
+.toggle-switch::after{
+  content:'';
+  position:absolute;
+  top:1px;
+  left:1px;
+  width:14px;
+  height:14px;
+  background:var(--accent-text);
+  border-radius:50%;
+  transition:transform 0.2s;
+}
+.toggle-switch.active::after{
+  transform:translateX(18px);
+}
+</style>
+</head>
+<body>
+
+<div class="phone" id="phone">
+
+  <!-- Effects layers -->
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+  <div class="freq-wave"></div>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="hud-left">EXTRACTION | 44:55</div>
+    <div class="hud-right">
+      <div class="theme-switcher">
+        <div class="theme-dot theme-dot-green active" data-theme="theme-green" title="Green"></div>
+        <div class="theme-dot theme-dot-cyan" data-theme="theme-cyan" title="Cyan"></div>
+        <div class="theme-dot theme-dot-blue" data-theme="theme-lightblue" title="Blue"></div>
+      </div>
+      <span class="hud-sig">SIG: 100%</span>
+      <span class="hud-dot"></span>
+      <span>&nbsp;● 1</span>
+    </div>
+  </div>
+
+  <!-- ═══ Screen Navigation ═══ -->
+  <div class="nav-bar">
+    <button class="nav-btn active" data-view="map">MAP</button>
+    <button class="nav-btn" data-view="radar">RADAR</button>
+    <button class="nav-btn" data-view="chat">CHAT</button>
+    <button class="nav-btn" data-view="setup">SETUP</button>
+    <button class="nav-btn" data-view="squad">SQUAD</button>
+  </div>
+
+  <!-- Map -->
+  <div class="map-wrap">
+    <div id="map"></div>
+    <canvas id="gridCanvas" class="grid-overlay"></canvas>
+    <div id="scanLine" class="scan-line"></div>
+    <div class="full-radar" id="fullRadar">
+      <div class="map-bg-layer" id="radarMapBg">
+        <div style="width:100%;height:100%;background:var(--bg);"></div>
+      </div>
+      <div class="radar-container">
+        <canvas id="fullRadarCanvas"></canvas>
+      </div>
+    </div>
+    <div class="emergency-stop">EMERGENCY<br>STOP</div>
+  </div>
+
+  <!-- Drawer -->
+  <div class="drawer-wrap">
+    <div class="drawer-tab" id="drawerTab">
+      <span class="arrow">&#9650;</span> PULL UP
+    </div>
+    <div class="drawer-body" id="drawerBody">
+      <!-- Collapsed view -->
+      <div class="drawer-collapsed" id="drawerCollapsed">
+        <div class="drawer-radar">
+          <canvas id="radarCanvas" width="80" height="80"></canvas>
+        </div>
+        <div class="drawer-quick-btns">
+          <button>USE ABILITY</button>
+          <button id="scanBtn">SCAN AREA</button>
+        </div>
+      </div>
+      <!-- Expanded view -->
+      <div class="drawer-expanded" id="drawerExpanded" style="display:none;">
+        <!-- Abilities -->
+        <div class="abilities-row">
+          <div class="ability-btn">
+            <span class="ability-label">SONIC BURST</span>
+            <span class="cooldown-text">CD: 12s</span>
+            <div class="cooldown-overlay"></div>
+          </div>
+          <div class="ability-btn cooldown">
+            <span class="ability-label">CLOAK</span>
+            <span class="cooldown-text">READY</span>
+            <div class="cooldown-overlay"></div>
+          </div>
+          <div class="ability-btn">
+            <span class="ability-label">DECOY</span>
+            <span class="cooldown-text">CD: 30s</span>
+            <div class="cooldown-overlay"></div>
+          </div>
+        </div>
+        <!-- Inventory -->
+        <div class="inventory-row">
+          <span class="inv-pill">Drone x1</span>
+          <span class="inv-pill">Trap x2</span>
+          <span class="inv-pill">Flares x3</span>
+          <span class="inv-pill">Medkit x1</span>
+        </div>
+        <!-- Squad -->
+        <div class="squad-row">
+          <div class="section-title">SQUAD</div>
+          <div class="squad-member">
+            <span class="status-dot alive"></span>
+            <span class="squad-name">GHOST-1 (YOU)</span>
+            <span class="squad-status">● ONLINE</span>
+          </div>
+          <div class="squad-member">
+            <span class="status-dot alive"></span>
+            <span class="squad-name">GHOST-2 • RIKER</span>
+            <span class="squad-status">● ONLINE</span>
+          </div>
+          <div class="squad-member">
+            <span class="status-dot downed"></span>
+            <span class="squad-name">GHOST-3 • KESTREL</span>
+            <span class="squad-status">▲ DOWNED</span>
+          </div>
+          <div class="squad-member">
+            <span class="status-dot missing"></span>
+            <span class="squad-name">GHOST-4 • NOVA</span>
+            <span class="squad-status">● MISSING</span>
+          </div>
+        </div>
+        <!-- Objectives -->
+        <div class="objectives-row">
+          <div class="section-title">OBJECTIVES</div>
+          <div class="obj-item done"><span class="check">&#10003;</span> Cache Alpha — Located</div>
+          <div class="obj-item"><span class="check"></span> Cache Bravo — Unlocated</div>
+          <div class="obj-item"><span class="check"></span> Extract at LZ-7</div>
+        </div>
+        <!-- Grid Toggle -->
+        <div class="toggle-row">
+          <span class="toggle-label">Tactical Grid</span>
+          <div class="toggle-switch" id="gridToggle"></div>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Map Under Radar</span>
+          <div class="toggle-switch" id="mapUnderToggle"></div>
+        </div>
+        <!-- GPS -->
+        <div class="gps-row">
+          <span>LAT: 47.6235° N</span>
+          <span>LON: 122.3364° W</span>
+          <span>ALT: 142m</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  // ============================================================
+  // Theme System
+  // ============================================================
+  const phone = document.getElementById('phone');
+  const themeDots = document.querySelectorAll('.theme-dot');
+  const STORAGE_KEY = 'sl-radar-theme';
+
+  // Read theme color from computed style
+  function getThemeColor(varName) {
+    return getComputedStyle(phone).getPropertyValue(varName).trim();
+  }
+
+  // Apply a theme by class name
+  function applyTheme(themeClass) {
+    // Remove all theme classes
+    phone.classList.remove('theme-cyan', 'theme-lightblue');
+    if (themeClass && themeClass !== 'theme-green') {
+      phone.classList.add(themeClass);
+    }
+    // Update active dot UI
+    themeDots.forEach(function(dot) {
+      dot.classList.toggle('active', dot.dataset.theme === themeClass);
+    });
+    // Persist
+    try { localStorage.setItem(STORAGE_KEY, themeClass || 'theme-green'); } catch(e) {}
+  }
+
+  // Theme switcher clicks
+  themeDots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      applyTheme(this.dataset.theme);
+    });
+  });
+
+  // Restore saved theme on load
+  try {
+    var saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      applyTheme(saved);
+    }
+  } catch(e) {}
+
+  // ---- Map Init ----
+  const map = L.map('map', {
+    center: [47.6235, -122.3364],
+    zoom: 16,
+    zoomControl: false,
+    attributionControl: false,
+    dragging: true,
+    scrollWheelZoom: true
+  });
+
+  // Dark tile layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    className: 'dark-tiles'
+  }).addTo(map);
+
+  // ---- Custom Icons ----
+  const playerIcon = L.divIcon({
+    className: '',
+    html: '<div class="player-marker"></div>',
+    iconSize: [16,16],
+    iconAnchor: [8,8]
+  });
+
+  const cacheIcon = L.divIcon({
+    className: '',
+    html: '<div class="obj-label">&#9672; CACHE ALPHA</div>',
+    iconSize: [0,0],
+    iconAnchor: [48,10]
+  });
+
+  const cacheBIcon = L.divIcon({
+    className: '',
+    html: '<div class="obj-label">&#9672; CACHE BRAVO</div>',
+    iconSize: [0,0],
+    iconAnchor: [48,10]
+  });
+
+  const extractIcon = L.divIcon({
+    className: '',
+    html: '<div class="obj-label extract-label">&#9654; EXTRACT LZ-7</div>',
+    iconSize: [0,0],
+    iconAnchor: [48,10]
+  });
+
+  // ---- Map Objects ----
+  // Player marker (pulsing dot)
+  const playerMarker = L.marker([47.6235, -122.3370], {icon: playerIcon, zIndexOffset: 1000}).addTo(map);
+
+  // Yellow circle = Cache Alpha
+  L.marker([47.6240, -122.3355], {icon: cacheIcon}).addTo(map);
+  L.circle([47.6240, -122.3355], {
+    color: '#ccaa00',
+    fillColor: '#ccaa00',
+    fillOpacity: 0.12,
+    radius: 20,
+    weight: 2,
+    dashArray: '4 4'
+  }).addTo(map);
+
+  // Yellow circle = Cache Bravo
+  L.marker([47.6228, -122.3378], {icon: cacheBIcon}).addTo(map);
+  L.circle([47.6228, -122.3378], {
+    color: '#ccaa00',
+    fillColor: '#ccaa00',
+    fillOpacity: 0.12,
+    radius: 20,
+    weight: 2,
+    dashArray: '4 4'
+  }).addTo(map);
+
+  // Red circle = Extraction point
+  L.marker([47.6248, -122.3340], {icon: extractIcon}).addTo(map);
+  L.circle([47.6248, -122.3340], {
+    color: '#cc3333',
+    fillColor: '#cc3333',
+    fillOpacity: 0.10,
+    radius: 30,
+    weight: 2
+  }).addTo(map);
+
+  // Gray dashed line = AI patrol route
+  const patrolCoords = [
+    [47.6232, -122.3375],
+    [47.6238, -122.3360],
+    [47.6230, -122.3350],
+    [47.6225, -122.3365],
+    [47.6232, -122.3375]
+  ];
+  L.polyline(patrolCoords, {
+    color: '#888',
+    weight: 2,
+    opacity: 0.6,
+    dashArray: '8 8'
+  }).addTo(map);
+
+  // Patrol waypoint dots along route
+  patrolCoords.forEach(function(c, i) {
+    if (i < patrolCoords.length - 1) {
+      L.circleMarker(c, {
+        radius: 3,
+        color: '#666',
+        fillColor: '#888',
+        fillOpacity: 0.8,
+        weight: 1
+      }).addTo(map);
+    }
+  });
+
+  // Pulse animation: rotate between waypoints for a moving patrol indicator
+  let patrolIndex = 0;
+  const patrolMarker = L.circleMarker(patrolCoords[0], {
+    radius: 5,
+    color: '#aaa',
+    fillColor: '#888',
+    fillOpacity: 0.9,
+    weight: 1
+  }).addTo(map);
+
+  setInterval(function() {
+    patrolIndex = (patrolIndex + 1) % (patrolCoords.length - 1);
+    const pt = patrolCoords[patrolIndex];
+    patrolMarker.setLatLng(pt);
+  }, 3000);
+
+  // ============================================================
+  // Tactical Grid Overlay (from V5)
+  // ============================================================
+  const gridCanvas = document.getElementById('gridCanvas');
+  const gridCtx = gridCanvas.getContext('2d');
+  const gridOverlay = document.querySelector('.grid-overlay');
+  const gridToggle = document.getElementById('gridToggle');
+  let gridActive = false;
+  let gridOffsetX = 0, gridOffsetY = 0;
+
+  const gridLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  function gridRef(gx, gy) {
+    const col = gridLetters[Math.abs(gx) % 26];
+    const row = String(Math.abs(gy) % 99).padStart(2, '0');
+    return col + row;
+  }
+
+  function resizeGridCanvas() {
+    const rect = document.getElementById('map').getBoundingClientRect();
+    gridCanvas.width = rect.width * window.devicePixelRatio;
+    gridCanvas.height = rect.height * window.devicePixelRatio;
+    gridCanvas.style.width = rect.width + 'px';
+    gridCanvas.style.height = rect.height + 'px';
+    gridCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  }
+  resizeGridCanvas();
+  window.addEventListener('resize', resizeGridCanvas);
+
+  function drawGrid() {
+    if (!gridActive) return;
+    const rect = document.getElementById('map').getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    gridCtx.clearRect(0, 0, width, height);
+
+    const gridSize = 60;
+    const startCol = Math.floor((-gridOffsetX) / gridSize);
+    const startRow = Math.floor((-gridOffsetY) / gridSize);
+
+    // Read current accent color
+    const accent = getThemeColor('--accent');
+    const accentRgb = getThemeColor('--accent-rgb');
+
+    // Grid lines
+    gridCtx.strokeStyle = 'rgba(' + accentRgb + ',0.15)';
+    gridCtx.lineWidth = 0.5;
+
+    for (let c = startCol - 1; c * gridSize + gridOffsetX < width + gridSize; c++) {
+      const x = c * gridSize + gridOffsetX;
+      gridCtx.beginPath();
+      gridCtx.moveTo(x, 0);
+      gridCtx.lineTo(x, height);
+      gridCtx.stroke();
+    }
+
+    for (let r = startRow - 1; r * gridSize + gridOffsetY < height + gridSize; r++) {
+      const y = r * gridSize + gridOffsetY;
+      gridCtx.beginPath();
+      gridCtx.moveTo(0, y);
+      gridCtx.lineTo(width, y);
+      gridCtx.stroke();
+    }
+
+    // Grid labels
+    gridCtx.fillStyle = 'rgba(' + accentRgb + ',0.35)';
+    gridCtx.font = '9px "Courier New", monospace';
+    gridCtx.textAlign = 'center';
+    gridCtx.textBaseline = 'middle';
+
+    for (let c = startCol - 1; c * gridSize + gridOffsetX < width + gridSize; c++) {
+      for (let r = startRow - 1; r * gridSize + gridOffsetY < height + gridSize; r++) {
+        const x = c * gridSize + gridOffsetX + gridSize / 2;
+        const y = r * gridSize + gridOffsetY + gridSize / 2;
+        if (x > 30 && x < width - 30 && y > 30 && y < height - 30) {
+          gridCtx.fillText(gridRef(c, r), x, y);
+        }
+      }
+    }
+
+    // Terrain features (pseudo-random polygons like V5)
+    gridCtx.fillStyle = 'rgba(' + accentRgb + ',0.04)';
+    gridCtx.strokeStyle = 'rgba(' + accentRgb + ',0.1)';
+    gridCtx.lineWidth = 0.5;
+
+    const terrainSeed = 12345;
+    function pseudoRandom(x, y) {
+      return Math.abs(Math.sin(x * 12.9898 + y * 78.233 + terrainSeed) * 43758.5453) % 1;
+    }
+
+    for (let i = 0; i < 30; i++) {
+      const tx = (pseudoRandom(i, 0) * 3000 - 1500) + gridOffsetX;
+      const ty = (pseudoRandom(i, 1) * 3000 - 1500) + gridOffsetY;
+      if (tx < -100 || tx > width + 100 || ty < -100 || ty > height + 100) continue;
+
+      gridCtx.beginPath();
+      const sides = 3 + Math.floor(pseudoRandom(i, 2) * 4);
+      const radius = 20 + pseudoRandom(i, 3) * 60;
+      for (let s = 0; s < sides; s++) {
+        const angle = (s / sides) * Math.PI * 2 + pseudoRandom(i, 4);
+        const px = tx + Math.cos(angle) * radius;
+        const py = ty + Math.sin(angle) * radius;
+        if (s === 0) gridCtx.moveTo(px, py);
+        else gridCtx.lineTo(px, py);
+      }
+      gridCtx.closePath();
+      gridCtx.fill();
+      gridCtx.stroke();
+    }
+  }
+
+  // Sync grid offset with Leaflet map pan
+  map.on('move', function() {
+    const center = map.getCenter();
+    const origin = map.getPixelOrigin();
+    const px = map.project(center);
+    gridOffsetX = origin.x - px.x + (gridCanvas.width / window.devicePixelRatio) / 2;
+    gridOffsetY = origin.y - px.y + (gridCanvas.height / window.devicePixelRatio) / 2;
+    drawGrid();
+  });
+
+  // Initial grid offset
+  (function initGridOffset() {
+    const center = map.getCenter();
+    const origin = map.getPixelOrigin();
+    const px = map.project(center);
+    const rect = document.getElementById('map').getBoundingClientRect();
+    gridOffsetX = origin.x - px.x + rect.width / 2;
+    gridOffsetY = origin.y - px.y + rect.height / 2;
+  })();
+
+  // Grid toggle
+  gridToggle.addEventListener('click', function() {
+    gridActive = !gridActive;
+    gridToggle.classList.toggle('active', gridActive);
+    gridOverlay.classList.toggle('active', gridActive);
+    if (gridActive) {
+      drawGrid();
+    }
+  });
+
+  // Redraw grid on theme change
+  themeDots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      if (gridActive) {
+        setTimeout(drawGrid, 50);
+      }
+    });
+  });
+
+  // ============================================================
+  // SCAN Button Animation
+  // ============================================================
+  const scanBtn = document.getElementById('scanBtn');
+  const scanLine = document.getElementById('scanLine');
+  const hudLeft = document.querySelector('.hud-left');
+  let isScanning = false;
+
+  scanBtn.addEventListener('click', function() {
+    if (isScanning) return;
+    isScanning = true;
+
+    // Update HUD status
+    const originalHudText = hudLeft.textContent;
+    hudLeft.textContent = 'SCANNING...';
+
+    // Trigger scan line animation
+    scanLine.classList.remove('scanning');
+    void scanLine.offsetWidth; // force reflow
+    scanLine.classList.add('scanning');
+
+    // Disable button temporarily
+    scanBtn.style.opacity = '0.5';
+    scanBtn.style.cursor = 'not-allowed';
+
+    // After 2s, reset
+    setTimeout(function() {
+      scanLine.classList.remove('scanning');
+      hudLeft.textContent = originalHudText;
+      scanBtn.style.opacity = '';
+      scanBtn.style.cursor = '';
+      isScanning = false;
+    }, 2000);
+  });
+
+  // ============================================================
+  // Radar Canvas — dynamic colors via getThemeColor()
+  // ============================================================
+  const cvs = document.getElementById('radarCanvas');
+  const ctx = cvs.getContext('2d');
+  const cx = 40, cy = 40, R = 38;
+
+  let radarAngle = 0;
+
+  function drawRadar(){
+    ctx.clearRect(0, 0, 80, 80);
+
+    // Read current theme colors from computed style
+    const accent      = getThemeColor('--accent');
+    const accentDim   = getThemeColor('--accent-dim');
+    const accentRgb   = getThemeColor('--accent-rgb');
+    const accentDimRgb = getThemeColor('--accent-dim-rgb');
+
+    // Outer ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.strokeStyle = accentDim;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Concentric rings
+    for (let r = R * 0.25; r < R; r += R * 0.25) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(' + accentDimRgb + ',0.25)';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+
+    // Crosshairs
+    ctx.beginPath();
+    ctx.moveTo(cx - R, cy);
+    ctx.lineTo(cx + R, cy);
+    ctx.moveTo(cx, cy - R);
+    ctx.lineTo(cx, cy + R);
+    ctx.strokeStyle = 'rgba(' + accentDimRgb + ',0.15)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+
+    // Sweep line
+    radarAngle = (radarAngle + 0.025) % (Math.PI * 2);
+
+    // Sweep glow
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+    grad.addColorStop(0, 'rgba(' + accentRgb + ',0.0)');
+    grad.addColorStop(0.5, 'rgba(' + accentRgb + ',0.06)');
+    grad.addColorStop(1, 'rgba(' + accentRgb + ',0.0)');
+    ctx.fillStyle = grad;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, radarAngle - 0.35, radarAngle + 0.35);
+    ctx.closePath();
+    ctx.fill();
+
+    // Sweep line
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    const sx = cx + Math.cos(radarAngle) * R;
+    const sy = cy + Math.sin(radarAngle) * R;
+    ctx.lineTo(sx, sy);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // Blips
+    const blips = [
+      {a: 1.2, d: 0.6, s: 3},
+      {a: 3.8, d: 0.35, s: 2},
+      {a: 5.1, d: 0.8, s: 2.5},
+      {a: 2.3, d: 0.5, s: 1.8}
+    ];
+    blips.forEach(function(b) {
+      const bx = cx + Math.cos(b.a) * R * b.d;
+      const by = cy + Math.sin(b.a) * R * b.d;
+      ctx.beginPath();
+      ctx.arc(bx, by, b.s, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(' + accentRgb + ',0.55)';
+      ctx.fill();
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    });
+
+    // Center dot
+    ctx.beginPath();
+    ctx.arc(cx, cy, 2, 0, Math.PI * 2);
+    ctx.fillStyle = accent;
+    ctx.fill();
+
+    requestAnimationFrame(drawRadar);
+  }
+
+  drawRadar();
+
+  // ---- Drawer Toggle ----
+  const tab = document.getElementById('drawerTab');
+  const body = document.getElementById('drawerBody');
+  const collapsed = document.getElementById('drawerCollapsed');
+  const expanded = document.getElementById('drawerExpanded');
+  let isOpen = false;
+
+  tab.addEventListener('click', function(){
+    isOpen = !isOpen;
+    tab.classList.toggle('open', isOpen);
+    body.classList.toggle('open', isOpen);
+
+    if (isOpen) {
+      // Expanded
+      collapsed.style.display = 'none';
+      expanded.style.display = 'flex';
+      // Let CSS transition work with auto height
+      body.style.height = expanded.scrollHeight + 20 + 'px';
+      // After transition, set back
+      setTimeout(function() {
+        body.style.height = 'auto';
+      }, 350);
+    } else {
+      // Collapsed
+      collapsed.style.display = 'flex';
+      expanded.style.display = 'none';
+      body.style.height = '0';
+    }
+  });
+
+  // Initialize: collapsed
+  collapsed.style.display = 'flex';
+  expanded.style.display = 'none';
+  body.style.height = '0';
+
+  // Force map to resize properly after drawer changes
+  setTimeout(function() { map.invalidateSize(); }, 100);
+  window.addEventListener('resize', function() { map.invalidateSize(); });
+
+  // ============================================================
+  // Screen Navigation — switch between MAP and full RADAR view
+  // ============================================================
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const mapEl = document.getElementById('map');
+  const fullRadar = document.getElementById('fullRadar');
+  const fullCanvas = document.getElementById('fullRadarCanvas');
+  const fullCtx = fullCanvas.getContext('2d');
+  let fullRadarAngle = 0;
+  let fullRadarAnimId = null;
+
+  function resizeFullRadar() {
+    const wrap = fullRadar.parentElement;
+    const size = Math.min(wrap.offsetWidth, wrap.offsetHeight) * 0.85;
+    const dpr = window.devicePixelRatio || 1;
+    fullCanvas.width = size * dpr;
+    fullCanvas.height = size * dpr;
+    fullCanvas.style.width = size + 'px';
+    fullCanvas.style.height = size + 'px';
+    fullCtx.scale(dpr, dpr);
+  }
+
+  function drawFullRadar() {
+    const s = parseInt(fullCanvas.style.width);
+    const cx = s / 2, cy = s / 2, R = s * 0.45;
+
+    const accent    = getThemeColor('--accent');
+    const accentDim = getThemeColor('--accent-dim');
+    const accentRgb = getThemeColor('--accent-rgb');
+    const accentDimRgb = getThemeColor('--accent-dim-rgb');
+
+    fullCtx.clearRect(0, 0, s, s);
+
+    // Background
+    fullCtx.fillStyle = 'rgba(' + accentDimRgb + ',0.08)';
+    fullCtx.beginPath();
+    fullCtx.arc(cx, cy, R, 0, Math.PI * 2);
+    fullCtx.fill();
+
+    // Concentric rings
+    for (let r = R * 0.25; r < R; r += R * 0.25) {
+      fullCtx.beginPath();
+      fullCtx.arc(cx, cy, r, 0, Math.PI * 2);
+      fullCtx.strokeStyle = 'rgba(' + accentDimRgb + ',0.20)';
+      fullCtx.lineWidth = 0.5;
+      fullCtx.stroke();
+    }
+
+    // Crosshairs + diagonals
+    fullCtx.strokeStyle = 'rgba(' + accentDimRgb + ',0.12)';
+    fullCtx.lineWidth = 0.5;
+    fullCtx.beginPath();
+    fullCtx.moveTo(cx - R, cy); fullCtx.lineTo(cx + R, cy);
+    fullCtx.moveTo(cx, cy - R); fullCtx.lineTo(cx, cy + R);
+    fullCtx.moveTo(cx - R*0.707, cy - R*0.707); fullCtx.lineTo(cx + R*0.707, cy + R*0.707);
+    fullCtx.moveTo(cx + R*0.707, cy - R*0.707); fullCtx.lineTo(cx - R*0.707, cy + R*0.707);
+    fullCtx.stroke();
+
+    // Outer ring
+    fullCtx.strokeStyle = accentDim;
+    fullCtx.lineWidth = 1.5;
+    fullCtx.beginPath();
+    fullCtx.arc(cx, cy, R, 0, Math.PI * 2);
+    fullCtx.stroke();
+
+    // Sweep
+    fullRadarAngle = (fullRadarAngle + 0.02) % (Math.PI * 2);
+    const grad = fullCtx.createConicGradient(fullRadarAngle, cx, cy);
+    grad.addColorStop(0, 'rgba(' + accentRgb + ',0)');
+    grad.addColorStop(0.85, 'rgba(' + accentRgb + ',0)');
+    grad.addColorStop(0.94, 'rgba(' + accentRgb + ',0.12)');
+    grad.addColorStop(1.0, 'rgba(' + accentRgb + ',0.35)');
+    fullCtx.fillStyle = grad;
+    fullCtx.beginPath();
+    fullCtx.arc(cx, cy, R, 0, Math.PI * 2);
+    fullCtx.fill();
+
+    // Leading edge
+    const lx = cx + Math.cos(fullRadarAngle) * R;
+    const ly = cy + Math.sin(fullRadarAngle) * R;
+    fullCtx.strokeStyle = accent;
+    fullCtx.lineWidth = 2;
+    fullCtx.shadowColor = accent;
+    fullCtx.shadowBlur = 12;
+    fullCtx.beginPath();
+    fullCtx.moveTo(cx, cy);
+    fullCtx.lineTo(lx, ly);
+    fullCtx.stroke();
+    fullCtx.shadowBlur = 0;
+
+    // Blips (6 targets)
+    [[1.2,0.6,4],[3.8,0.35,3],[5.1,0.8,3.5],[2.3,0.5,2.5],[4.7,0.25,2],[0.8,0.7,3]].forEach(function(b) {
+      const bx = cx + Math.cos(b[0]) * R * b[1];
+      const by = cy + Math.sin(b[0]) * R * b[1];
+      fullCtx.beginPath();
+      fullCtx.arc(bx, by, b[2], 0, Math.PI * 2);
+      fullCtx.fillStyle = 'rgba(' + accentRgb + ',0.6)';
+      fullCtx.fill();
+      fullCtx.strokeStyle = accent;
+      fullCtx.lineWidth = 0.5;
+      fullCtx.stroke();
+    });
+
+    // Center dot
+    fullCtx.beginPath();
+    fullCtx.arc(cx, cy, 3, 0, Math.PI * 2);
+    fullCtx.fillStyle = accent;
+    fullCtx.fill();
+
+    fullRadarAnimId = requestAnimationFrame(drawFullRadar);
+  }
+
+  // Nav button clicks
+  navBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const view = btn.dataset.view;
+      navBtns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+
+      if (view === 'map') {
+        mapEl.style.display = 'block';
+        fullRadar.classList.remove('active');
+        if (fullRadarAnimId) { cancelAnimationFrame(fullRadarAnimId); fullRadarAnimId = null; }
+        setTimeout(function() { map.invalidateSize(); }, 100);
+      } else if (view === 'radar') {
+        mapEl.style.display = 'none';
+        fullRadar.classList.add('active');
+        resizeFullRadar();
+        if (!fullRadarAnimId) { drawFullRadar(); }
+      }
+    });
+  });
+
+  // Map Under Radar toggle
+  const mapUnderToggle = document.getElementById('mapUnderToggle');
+  let mapUnderActive = false;
+  mapUnderToggle.addEventListener('click', function() {
+    mapUnderActive = !mapUnderActive;
+    mapUnderToggle.classList.toggle('active', mapUnderActive);
+    fullRadar.classList.toggle('show-map', mapUnderActive);
+    if (mapUnderActive) {
+      // Show the actual map underneath the radar overlay
+      document.getElementById('radarMapBg').innerHTML = '<div id="mapUnder" style="width:100%;height:100%;"></div>';
+      var mapUnder = L.map('mapUnder', {
+        center: [40.7128, -74.0060],
+        zoom: 13,
+        zoomControl: false,
+        attributionControl: false
+      });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 20
+      }).addTo(mapUnder);
+    } else {
+      var mapUnderDiv = document.getElementById('mapUnder');
+      if (mapUnderDiv) { mapUnderDiv.remove(); }
+    }
+  });
+
+  window.addEventListener('resize', function() {
+    if (fullRadar.classList.contains('active')) { resizeFullRadar(); }
+  });
+})();
+</script>
+</body>
+</html>

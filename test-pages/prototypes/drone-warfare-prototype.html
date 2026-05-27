@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SIGNAL LOST — Drone Warfare Design</title>
+<style>
+/* ─── Cyan Theme (Default) ─── */
+:root {
+  --accent: #00ffff;
+  --accent-rgb: 0, 255, 255;
+  --accent-dim: #00e5e5;
+  --accent-dim-rgb: 0, 229, 229;
+  --accent-glow: #33ffff;
+  --accent-glow-rgb: 51, 255, 255;
+  --accent-bright: #66ffff;
+  --accent-text: #b0ffff;
+  --accent-muted: #5a9a9a;
+  --accent-dim-muted: #3a6a6a;
+  --accent-border: #1a3a3a;
+  --accent-border-light: #143838;
+  --accent-border-dim: #1f3a3a;
+  --accent-border-input: #1a3a3a;
+  --bg: #0a0a0a;
+  --bg-dark: #0d1b1b;
+  --bg-header: #0f2222;
+  --bg-header-to: #0a1a1a;
+  --bg-tab: #0a1818;
+  --bg-tab-hover: transparent;
+  --bg-quick: #091414;
+  --bg-input: #0a1818;
+  --bg-input-field: #0a1414;
+  --bg-button: #0f2a2a;
+  --bg-button-hover: #1a3a3a;
+  --bg-button-active: #1f4a4a;
+  --bg-msg-player: rgba(30, 60, 60, 0.4);
+  --bg-msg-system: rgba(20, 40, 40, 0.2);
+  --bg-quick-btn: #0f1f1f;
+  --bg-quick-btn-hover: #1a3a3a;
+  --bg-quick-btn-active: #1f4a4a;
+  --text: #b0ffff;
+  --text-dim: #66ffff;
+  --text-muted: #3a6a6a;
+  --text-input: #b0ffff;
+  --text-placeholder: #1f3a3a;
+  --text-enc-label: #2a5a5a;
+  --text-divider: #1a3a3a;
+  --text-divider-dash: #0f1f1f;
+  --text-system: #5a9a9a;
+  --text-system-strong: #7affff;
+  --text-transmission: #6a9a9a;
+  --text-quick-btn: #7affff;
+  --text-enc-border: #1a3a3a;
+  --scrollbar-thumb: #1a3a3a;
+  --signal-bar-1: #00e5e5;
+  --signal-bar-4: #33ffff;
+  --signal-bar-5: #66ffff;
+  --status-dot: #00e5e5;
+  --status-dot-glow: #00e5e5;
+  --tab-active: #8affff;
+  --tab-active-underline: #33ffff;
+  --tab-active-glow: rgba(0, 255, 255, 0.2);
+  --tab-active-underline-shadow: rgba(51, 255, 255, 0.4);
+  --btn-border-hover: #3a6a6a;
+  --btn-shadow-hover: rgba(0, 255, 255, 0.15);
+  --btn-shadow: rgba(0, 255, 255, 0.08);
+  --input-focus-border: #00e5e5;
+  --input-focus-shadow: rgba(0, 229, 229, 0.05);
+  --send-btn-border: #2a5a5a;
+  --send-btn-text: #66ffff;
+  --send-btn-border-hover: #33ffff;
+  --send-btn-shadow-hover: rgba(51, 255, 255, 0.15);
+  --header-shadow: rgba(0, 255, 255, 0.3);
+  --scanline-color: rgba(0, 255, 255, 0.015);
+  --freq-color: #00ffff;
+  --crackle-1: #0a1a1a;
+  --crackle-2: #1a3a3a;
+  --crackle-3: #0f2a2a;
+  --msg-border-player: #00e5e5;
+  --msg-callsign: #66ffff;
+  --msg-timestamp: #2a5a5a;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  height: 100%;
+  background: var(--bg);
+  font-family: 'Courier New', 'Courier', monospace;
+  color: var(--text);
+  overflow: hidden;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ─── Phone Frame ─── */
+.phone {
+  width: 100%;
+  max-width: 390px;
+  height: 100vh;
+  max-height: 812px;
+  background: var(--bg-dark);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 60px var(--btn-shadow);
+}
+.views-scroll{
+  flex:1;
+  overflow-y:auto;
+  position:relative;
+}
+
+/* ─── Scan Lines ─── */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    var(--scanline-color) 2px,
+    var(--scanline-color) 4px
+  );
+}
+
+/* ─── Vignette ─── */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+}
+
+/* ─── Frequency Wave Decor ─── */
+.freq-wave {
+  position: absolute;
+  bottom: 140px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.04;
+  overflow: hidden;
+}
+.freq-wave::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--freq-color) 0px,
+    transparent 2px,
+    transparent 8px,
+    var(--freq-color) 10px,
+    transparent 12px
+  );
+  animation: freqSweep 6s linear infinite;
+}
+@keyframes freqSweep {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── HUD ─── */
+.hud {
+  height: 40px;
+  min-height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(180deg, var(--bg-header), var(--bg-header-to));
+  border-bottom: 1px solid var(--accent-border);
+  padding: 0 10px;
+  z-index: 1000;
+  position: relative;
+}
+.hud-left {
+  color: var(--accent-bright);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.hud-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-text);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+.hud-sig { color: var(--accent-bright); }
+.hud-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-left: 4px;
+  animation: pulse-dot 1.2s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* ─── Nav Bar ─── */
+.nav-bar {
+  display: flex;
+  background: var(--bg-tab);
+  border-bottom: 1px solid var(--accent-border-light);
+  flex-shrink: 0;
+  z-index: 500;
+}
+.nav-btn {
+  flex: 1;
+  text-align: center;
+  padding: 7px 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  position: relative;
+  text-transform: uppercase;
+  transition: color 0.2s;
+  background: transparent;
+  border: none;
+}
+.nav-btn:hover { color: var(--text-dim); }
+.nav-btn.active {
+  opacity: 1;
+  color: var(--tab-active);
+  text-shadow: 0 0 6px var(--tab-active-glow);
+}
+.nav-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  width: 60%;
+  height: 2px;
+  background: var(--tab-active-underline);
+  box-shadow: 0 0 8px var(--tab-active-underline), 0 0 12px var(--tab-active-underline-shadow);
+  border-radius: 1px;
+}
+
+/* ─── View Panels ─── */
+.view-panel {
+  display: none;
+  flex-direction: column;
+  padding: 10px 12px;
+  position: relative;
+  z-index: 5;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+.view-panel.active { display: flex; }
+.view-panel::-webkit-scrollbar { width: 4px; }
+.view-panel::-webkit-scrollbar-track { background: transparent; }
+.view-panel::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+
+/* ─── Info Section (OPS/LOADOUT style) ─── */
+.info-section {
+  background: var(--bg-button);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.info-header {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--accent-border);
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+}
+.info-row {
+  font-size: 10px;
+  color: var(--accent-text);
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+}
+.info-row .label {
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 9px;
+}
+.info-row .value {
+  color: var(--text-dim);
+}
+
+/* ─── Equipment Card ─── */
+.equip-card {
+  background: var(--bg-button);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.15s;
+}
+.equip-card:hover { border-color: var(--btn-border-hover); }
+.equip-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+.equip-desc {
+  font-size: 9px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.equip-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.tag {
+  font-size: 8px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+.tag-recon    { color: #00ff88; border-color: #1a4a3a; background: rgba(0,255,136,0.08); }
+.tag-offensive{ color: #ff4444; border-color: #4a1a1a; background: rgba(255,68,68,0.08); }
+.tag-support  { color: #4488ff; border-color: #1a2a4a; background: rgba(68,136,255,0.08); }
+.tag-hidden   { color: #ffaa00; border-color: #4a3a1a; background: rgba(255,170,0,0.08); }
+.tag-visible  { color: #00ffff; border-color: #1a3a3a; background: rgba(0,255,255,0.08); }
+
+/* ─── Role Card ─── */
+.role-card {
+  background: var(--bg-button);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 12px 10px;
+  text-align: center;
+  transition: all 0.15s;
+}
+.role-card:hover {
+  background: var(--bg-button-hover);
+  border-color: var(--btn-border-hover);
+}
+.role-icon {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+.role-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.role-gear {
+  font-size: 9px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.role-action {
+  font-size: 8px;
+  color: var(--text-system);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--accent-border);
+}
+
+/* ─── Role Grid ─── */
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+/* ─── Flow Diagram ─── */
+.flow-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--accent-text);
+}
+.flow-step .step-num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-button-active);
+  border: 1px solid var(--accent-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.flow-arrow {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1;
+}
+
+/* ─── Map Canvas ─── */
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  background: #050808;
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+#mapCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ─── Legend ─── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  padding: 8px 10px;
+  background: var(--bg-button);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  color: var(--accent-text);
+  letter-spacing: 0.3px;
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.legend-dash {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px dashed;
+  flex-shrink: 0;
+}
+.legend-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: legendPulse 1.5s ease-in-out infinite;
+}
+@keyframes legendPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.3); }
+}
+
+/* ─── Section Label ─── */
+.section-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+/* ─── Divider ─── */
+.divider {
+  text-align: center;
+  font-size: 9px;
+  color: var(--text-divider);
+  padding: 2px 0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.divider::before, .divider::after {
+  content: '── ';
+  color: var(--text-divider-dash);
+}
+.divider::after { content: ' ──'; }
+
+/* ─── Responsive ─── */
+@media (max-height: 640px) {
+  .phone { max-height: 100vh; }
+  .view-panel { padding: 8px 10px; gap: 8px; }
+  .map-container { height: 200px; }
+  .role-card { padding: 10px 8px; }
+  .role-icon { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Effects layers -->
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+  <div class="freq-wave"></div>
+
+  <!-- ═══ HUD ═══ -->
+  <div class="hud">
+    <div class="hud-left">DESIGN v0.3</div>
+    <div class="hud-right">
+      <span class="hud-sig">DETECTION LOGIC</span>
+      <span class="hud-dot"></span>
+    </div>
+  </div>
+
+  <div class="views-scroll">
+
+  <!-- ═══ TAB 1: MAP ═══ -->
+  <div class="view-panel active" id="view-map">
+    <div class="section-label">Tactical Overview</div>
+    <div class="map-container">
+      <canvas id="mapCanvas"></canvas>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#00ff88;"></div>Patrol Drone</div>
+      <div class="legend-item"><div class="legend-dash" style="border-color:#ff4444;"></div>Sniper Drone</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff4444;"></div>Mine</div>
+      <div class="legend-item"><div class="legend-dash" style="border-color:#ff4444;"></div>Hidden Mine</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3a6a6a;opacity:0.5;"></div>Listening Post</div>
+      <div class="legend-item"><div class="legend-pulse" style="background:#4488ff;"></div>Jammer</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00ffff;"></div>DZ Marker</div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB 2: EQUIPMENT ═══ -->
+  <div class="view-panel" id="view-equip">
+    <div class="section-label">Equipment Catalog</div>
+
+    <div class="equip-card">
+      <div class="equip-name">Patrol Drone</div>
+      <div class="equip-desc">Autonomous aerial scout. Orbits a waypoint, spots enemies within radius.</div>
+      <div class="equip-tags">
+        <span class="tag tag-recon">Recon</span>
+        <span class="tag tag-visible">Visible</span>
+      </div>
+    </div>
+
+    <div class="equip-card">
+      <div class="equip-name">Sniper Drone</div>
+      <div class="equip-desc">High-altitude marksman. Fires on spotted targets. Concealed until it shoots.</div>
+      <div class="equip-tags">
+        <span class="tag tag-offensive">Offensive</span>
+        <span class="tag tag-hidden">Hidden</span>
+      </div>
+    </div>
+
+    <div class="equip-card">
+      <div class="equip-name">Medic Drone</div>
+      <div class="equip-desc">Deploys to downed squadmates. Applies stim and calls for pickup.</div>
+      <div class="equip-tags">
+        <span class="tag tag-support">Support</span>
+        <span class="tag tag-visible">Visible</span>
+      </div>
+    </div>
+
+    <div class="equip-card">
+      <div class="equip-name">Supply Drone</div>
+      <div class="equip-desc">Air-drops ammo, meds, or gear to a marked location. Loud arrival.</div>
+      <div class="equip-tags">
+        <span class="tag tag-support">Support</span>
+        <span class="tag tag-visible">Visible</span>
+      </div>
+    </div>
+
+    <div class="equip-card">
+      <div class="equip-name">Proximity Mine</div>
+      <div class="equip-desc">Buried explosive. Triggers on enemy movement within 3m. Arm time: 2s.</div>
+      <div class="equip-tags">
+        <span class="tag tag-offensive">Offensive</span>
+        <span class="tag tag-hidden">Hidden</span>
+      </div>
+    </div>
+
+    <div class="equip-card">
+      <div class="equip-name">EMP Bomb</div>
+      <div class="equip-desc">Area denial electronics killer. Disables drones, jammers, and optics for 10s.</div>
+      <div class="equip-tags">
+        <span class="tag tag-offensive">Offensive</span>
+        <span class="tag tag-visible">Visible</span>
+      </div>
+    </div>
+
+    <div class="equip-card">
+      <div class="equip-name">Listening Post</div>
+      <div class="equip-desc">Concealed audio sensor. Alerts when enemy footsteps detected in 15m radius.</div>
+      <div class="equip-tags">
+        <span class="tag tag-recon">Recon</span>
+        <span class="tag tag-hidden">Hidden</span>
+      </div>
+    </div>
+
+    <div class="equip-card">
+      <div class="equip-name">Signal Jammer</div>
+      <div class="equip-desc">Blocks enemy drone control and comms within 20m. Blue dome visible to all.</div>
+      <div class="equip-tags">
+        <span class="tag tag-support">Support</span>
+        <span class="tag tag-visible">Visible</span>
+      </div>
+    </div>
+
+    <div class="equip-card">
+      <div class="equip-name">Trail Cam</div>
+      <div class="equip-desc">Motion-activated camera. Sends snapshot to Spotter when triggered.</div>
+      <div class="equip-tags">
+        <span class="tag tag-recon">Recon</span>
+        <span class="tag tag-hidden">Hidden</span>
+      </div>
+    </div>
+
+    <div class="equip-card">
+      <div class="equip-name">Decoy Flare</div>
+      <div class="equip-desc">Thermal and radar decoy. Diverts drone targeting and missile locks for 8s.</div>
+      <div class="equip-tags">
+        <span class="tag tag-support">Support</span>
+        <span class="tag tag-visible">Visible</span>
+      </div>
+    </div>
+
+    <div class="equip-card">
+      <div class="equip-name">Claymore</div>
+      <div class="equip-desc">Directional anti-personnel mine. Laser tripwire. Frontal cone blast.</div>
+      <div class="equip-tags">
+        <span class="tag tag-offensive">Offensive</span>
+        <span class="tag tag-hidden">Hidden</span>
+      </div>
+    </div>
+
+    <div class="equip-card">
+      <div class="equip-name">Thermite Charge</div>
+      <div class="equip-desc">Burns through reinforced doors and equipment. Leaves scorched no-entry zone.</div>
+      <div class="equip-tags">
+        <span class="tag tag-offensive">Offensive</span>
+        <span class="tag tag-visible">Visible</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB 3: DETECTION ═══ -->
+  <div class="view-panel" id="view-detect">
+    <div class="section-label">Detection Mechanics</div>
+
+    <div class="info-section">
+      <div class="info-header">Active Detection</div>
+      <div class="info-row">
+        <span class="label">Patrol Drone:</span> <span class="value">Visual LOS scan every 1.2s. Spots moving targets in open terrain. Stealth reduces range by 40%.</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Trail Cam:</span> <span class="value">Motion trigger + snapshot. Ignores crouch-walk below 0.8 m/s. Sends alert to Spotter instantly.</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Signal Sweep:</span> <span class="value">Hacker ability. Pings all active electronics in 50m. Reveals hidden devices for 4s.</span>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-header">Passive Detection</div>
+      <div class="info-row">
+        <span class="label">Listening Post:</span> <span class="value">Always-on audio. Footsteps, gunfire, and vehicle engines detected in 15m. No LOS required.</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Proximity Mine:</span> <span class="value">Pressure plate. Triggers on any entity within 3m after 2s arm delay. No warning.</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Sniper Drone:</span> <span class="value">Hidden until firing. Muzzle flash reveals position for 3s. Then re-conceals.</span>
+      </div>
+    </div>
+
+    <div class="divider">After Detection</div>
+
+    <div class="info-section">
+      <div class="info-header">What Happens After Detection</div>
+      <div class="info-row"><span class="value">1. Track — Position updated on squad minimap every 2s for 10s.</span></div>
+      <div class="info-row"><span class="value">2. Mark — Target highlighted with red diamond. +15% damage from squad.</span></div>
+      <div class="info-row"><span class="value">3. Engage — Sniper Drone auto-fires. Mines trigger. Claymores detonate.</span></div>
+      <div class="info-row"><span class="value">4. Countermeasure — Jammer blocks signal. Decoy redirects lock. EMP kills device.</span></div>
+      <div class="info-row"><span class="value">5. Alert Team — All squad members notified via HUD ping and audio cue.</span></div>
+    </div>
+
+    <div class="divider">Counterplay</div>
+
+    <div class="info-section">
+      <div class="info-header">Counterplay Options</div>
+      <div class="info-row">
+        <span class="label">Fog of War:</span> <span class="value">Dense smoke, weather, and night reduce drone vision range by 60%. Thermal upgrades bypass this.</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Kill the Drone:</span> <span class="value">Small arms, 2-3 hits. Drops scrap for Engineer. Disables all linked spotting for 15s.</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Signal Jamming:</span> <span class="value">Jammer blocks control in 20m. Hacker can hijack instead with 4s channel.</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Ghost Mode:</span> <span class="value">Crouch-walk below 0.8 m/s. No drone spot. Thermal still sees you.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB 4: ROLES ═══ -->
+  <div class="view-panel" id="view-roles">
+    <div class="section-label">Role-Equipment Matrix</div>
+
+    <div class="role-grid">
+      <div class="role-card">
+        <div class="role-icon">📡</div>
+        <div class="role-name">Recon</div>
+        <div class="role-gear">Patrol Drone<br>Listening Post<br>Trail Cam</div>
+        <div class="role-action">Spot &amp; Report</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">🎯</div>
+        <div class="role-name">Striker</div>
+        <div class="role-gear">Sniper Drone<br>Proximity Mine<br>Claymore</div>
+        <div class="role-action">Eliminate Threats</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">➕</div>
+        <div class="role-name">Medic</div>
+        <div class="role-gear">Medic Drone<br>Decoy Flare</div>
+        <div class="role-action">Revive &amp; Protect</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">🔧</div>
+        <div class="role-name">Engineer</div>
+        <div class="role-gear">Repair Kit<br>EMP Bomb<br>Thermite Charge</div>
+        <div class="role-action">Repair &amp; Breach</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">💻</div>
+        <div class="role-name">Hacker</div>
+        <div class="role-gear">Signal Sweep<br>Disable</div>
+        <div class="role-action">Hack &amp; Disrupt</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">📦</div>
+        <div class="role-name">Spotter</div>
+        <div class="role-gear">Supply Drone<br>Trail Cam Feed</div>
+        <div class="role-action">Supply &amp; Relay</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">🛡️</div>
+        <div class="role-name">Guardian</div>
+        <div class="role-gear">Jammer<br>Decoy<br>Claymore</div>
+        <div class="role-action">Defend &amp; Deny</div>
+      </div>
+    </div>
+
+    <div class="divider">Repair &amp; Resupply Loop</div>
+
+    <div class="info-section">
+      <div class="info-header">Equipment Lifecycle</div>
+      <div class="flow-diagram">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <span>Deploy — Place or launch equipment in the field</span>
+        </div>
+        <div class="flow-arrow">▼</div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <span>Active — Device performs its role until destroyed or depleted</span>
+        </div>
+        <div class="flow-arrow">▼</div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <span>Damaged — Hit by enemy fire or EMP. Reduced effectiveness</span>
+        </div>
+        <div class="flow-arrow">▼</div>
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <span>Repair — Engineer uses Repair Kit to restore full function</span>
+        </div>
+        <div class="flow-arrow">▼</div>
+        <div class="flow-step">
+          <div class="step-num">5</div>
+          <span>Resupply — Supply Drone or cache restocks consumables</span>
+        </div>
+        <div class="flow-arrow">▼</div>
+        <div class="flow-step">
+          <div class="step-num">6</div>
+          <span>Recycle — Destroyed drones drop scrap. Rebuild at cache</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+  <!-- ═══ Nav Bar ═══ -->
+  <div class="nav-bar">
+    <button class="nav-btn active" data-view="map">MAP</button>
+    <button class="nav-btn" data-view="equip">EQUIP</button>
+    <button class="nav-btn" data-view="detect">DETECT</button>
+    <button class="nav-btn" data-view="roles">ROLES</button>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  // ─── Tab Switching ───
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const viewPanels = document.querySelectorAll('.view-panel');
+
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const viewId = btn.dataset.view;
+      navBtns.forEach(b => b.classList.remove('active'));
+      viewPanels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const target = document.getElementById('view-' + viewId);
+      if (target) target.classList.add('active');
+    });
+  });
+
+  // ─── Map Canvas Animation ───
+  const canvas = document.getElementById('mapCanvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    let t = 0;
+
+    function resize() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      W = canvas.width = rect.width;
+      H = canvas.height = rect.height;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Map entities
+    const patrolDrones = [
+      { x: 0.3, y: 0.35, r: 0.08, speed: 1.2, phase: 0 },
+      { x: 0.7, y: 0.6,  r: 0.06, speed: 0.9, phase: 2 },
+    ];
+    const sniperDrone = { x: 0.5, y: 0.2 };
+    const mines = [
+      { x: 0.2, y: 0.7, hidden: false },
+      { x: 0.8, y: 0.4, hidden: true },
+      { x: 0.45, y: 0.8, hidden: true },
+    ];
+    const listeningPosts = [
+      { x: 0.15, y: 0.3 },
+      { x: 0.85, y: 0.75 },
+    ];
+    const jammer = { x: 0.55, y: 0.5 };
+    const dzMarkers = [
+      { x: 0.25, y: 0.55, label: 'DZ-A' },
+      { x: 0.75, y: 0.25, label: 'DZ-B' },
+    ];
+
+    function drawGrid() {
+      ctx.strokeStyle = 'rgba(0,255,255,0.06)';
+      ctx.lineWidth = 0.5;
+      const step = 30;
+      for (let x = 0; x < W; x += step) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = 0; y < H; y += step) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+    }
+
+    function drawTerrain() {
+      // Subtle terrain blobs
+      ctx.fillStyle = 'rgba(0,255,255,0.02)';
+      ctx.beginPath();
+      ctx.arc(W * 0.3, H * 0.4, W * 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(W * 0.7, H * 0.6, W * 0.15, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawPatrolDrone(d) {
+      const cx = W * (d.x + Math.cos(t * d.speed + d.phase) * d.r);
+      const cy = H * (d.y + Math.sin(t * d.speed + d.phase) * d.r);
+      // Orbit ring
+      ctx.strokeStyle = 'rgba(0,255,136,0.15)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(W * d.x, H * d.y, W * d.r, 0, Math.PI * 2);
+      ctx.stroke();
+      // Drone
+      ctx.fillStyle = '#00ff88';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+      ctx.fill();
+      // Glow
+      ctx.fillStyle = 'rgba(0,255,136,0.2)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawSniperDrone() {
+      const cx = W * sniperDrone.x;
+      const cy = H * sniperDrone.y;
+      ctx.strokeStyle = '#ff4444';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Crosshair
+      ctx.strokeStyle = 'rgba(255,68,68,0.5)';
+      ctx.beginPath();
+      ctx.moveTo(cx - 10, cy); ctx.lineTo(cx + 10, cy);
+      ctx.moveTo(cx, cy - 10); ctx.lineTo(cx, cy + 10);
+      ctx.stroke();
+    }
+
+    function drawMines() {
+      mines.forEach(m => {
+        const cx = W * m.x;
+        const cy = H * m.y;
+        if (m.hidden) {
+          ctx.strokeStyle = 'rgba(255,68,68,0.35)';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        } else {
+          ctx.fillStyle = '#ff4444';
+          ctx.beginPath();
+          ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = 'rgba(255,68,68,0.2)';
+          ctx.beginPath();
+          ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+    }
+
+    function drawListeningPosts() {
+      listeningPosts.forEach(lp => {
+        const cx = W * lp.x;
+        const cy = H * lp.y;
+        ctx.fillStyle = 'rgba(58,106,106,0.4)';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(58,106,106,0.25)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 8 + Math.sin(t * 2) * 2, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+    }
+
+    function drawJammer() {
+      const cx = W * jammer.x;
+      const cy = H * jammer.y;
+      const pulse = 12 + Math.sin(t * 3) * 4;
+      ctx.fillStyle = 'rgba(68,136,255,0.15)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, pulse, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(68,136,255,0.3)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#4488ff';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    function drawDzMarkers() {
+      dzMarkers.forEach(dz => {
+        const cx = W * dz.x;
+        const cy = H * dz.y;
+        // House icon
+        ctx.fillStyle = '#00ffff';
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 7);
+        ctx.lineTo(cx - 6, cy);
+        ctx.lineTo(cx - 6, cy + 6);
+        ctx.lineTo(cx + 6, cy + 6);
+        ctx.lineTo(cx + 6, cy);
+        ctx.closePath();
+        ctx.fill();
+        // Label
+        ctx.fillStyle = 'var(--accent-text)';
+        ctx.font = '9px "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(dz.label, cx, cy + 16);
+      });
+    }
+
+    function loop() {
+      t += 0.016;
+      ctx.fillStyle = '#050808';
+      ctx.fillRect(0, 0, W, H);
+      drawGrid();
+      drawTerrain();
+      drawDzMarkers();
+      drawListeningPosts();
+      drawMines();
+      drawJammer();
+      patrolDrones.forEach(drawPatrolDrone);
+      drawSniperDrone();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  }
+})();
+</script>
+</body>
+</html>
